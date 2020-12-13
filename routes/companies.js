@@ -20,7 +20,7 @@ router.get("/", async (req, res, next) => {
 			min_employees,
 			max_employees
 		);
-		return res.json(companies);
+		return res.json({ companies: companies });
 	} catch (e) {
 		return next(e);
 	}
