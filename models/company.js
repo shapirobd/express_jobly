@@ -45,6 +45,15 @@ class Company {
 		}
 		return results.rows[0];
 	}
+
+	static async updateOne(items, handle) {
+		const query = sqlForPartialUpdate("companies", items, "handle", handle);
+		const results = await db.query(query["query"], query["values"]);
+		if (results.rows.length === 0) {
+			throw new ExpressError("Company not found.", 404);
+		}
+		return results.rows[0];
+	}
 }
 
 module.exports = Company;

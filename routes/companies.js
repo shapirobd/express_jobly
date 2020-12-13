@@ -52,4 +52,19 @@ router.get("/:handle", async (req, res, next) => {
 	}
 });
 
+router.patch("/:handle", async (req, res, next) => {
+	try {
+		const result = jsonschema.validate(req.body, companySchema);
+		if (!result.valid) {
+			let errorsList = result.errors.map((error) => error.stack);
+			let error = new ExpressError(errorsList, 400);
+			return next(error);
+		}
+		const company = await Company.updateOne(req.body, req.params.handle);
+		return res.json({ company: company });
+	} catch (e) {
+		return next(e);
+	}
+});
+
 module.exports = router;
