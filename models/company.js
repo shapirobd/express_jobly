@@ -2,6 +2,7 @@ const db = require("../db");
 const sqlForPartialUpdate = require("../helpers/partialUpdate");
 const sqlForGetAll = require("../helpers/getAll");
 const sqlForCreate = require("../helpers/create");
+const sqlForGetOne = require("../helpers/getOne");
 const ExpressError = require("../helpers/expressError");
 
 class Company {
@@ -33,6 +34,15 @@ class Company {
 	static async create(items) {
 		const query = sqlForCreate("companies", items);
 		const results = await db.query(query["queryString"], query["values"]);
+		return results.rows[0];
+	}
+
+	static async getByHandle(handle) {
+		const query = sqlForGetOne("companies", "handle", handle);
+		const results = await db.query(query["queryString"], query["values"]);
+		if (results.rows.length === 0) {
+			throw new ExpressError("Company not found.", 404);
+		}
 		return results.rows[0];
 	}
 }

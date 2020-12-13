@@ -43,4 +43,13 @@ router.post("/", async (req, res, next) => {
 	}
 });
 
+router.get("/:handle", async (req, res, next) => {
+	try {
+		const company = await Company.getByHandle(req.params.handle);
+		return res.json({ company: company });
+	} catch (e) {
+		return next(e);
+	}
+});
+
 module.exports = router;
