@@ -67,4 +67,13 @@ router.patch("/:handle", async (req, res, next) => {
 	}
 });
 
+router.delete("/:handle", async (req, res, next) => {
+	try {
+		await Company.delete(req.params.handle);
+		return res.json({ message: "Company deleted" });
+	} catch (e) {
+		return next(e);
+	}
+});
+
 module.exports = router;
