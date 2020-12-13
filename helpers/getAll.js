@@ -16,11 +16,11 @@ function sqlForGetAll(table, filters) {
 		idx++;
 	}
 	let employeesQuery = generateEmployeeQuery(filters, idx, nameQuery);
-	let query = `SELECT * FROM ${table} ${nameQuery} ${employeesQuery}`;
+	let queryString = `SELECT * FROM ${table} ${nameQuery} ${employeesQuery}`;
 
 	removeUndefinedFilters(filters);
 	let values = Object.values(filters);
-	return { query, values };
+	return { queryString, values };
 }
 
 function removeUndefinedFilters(filters) {

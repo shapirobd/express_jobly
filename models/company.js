@@ -1,6 +1,7 @@
 const db = require("../db");
 const sqlForPartialUpdate = require("../helpers/partialUpdate");
 const sqlForGetAll = require("../helpers/getAll");
+const sqlForCreate = require("../helpers/create");
 const ExpressError = require("../helpers/expressError");
 
 class Company {
@@ -20,14 +21,19 @@ class Company {
 				400
 			);
 		}
-		const queryString = sqlForGetAll("companies", {
+		const query = sqlForGetAll("companies", {
 			search: search,
 			min_employees: min_employees,
 			max_employees: max_employees,
 		});
-		console.log(queryString);
-		const results = await db.query(queryString["query"], queryString["values"]);
+		const results = await db.query(query["queryString"], query["values"]);
 		return results.rows;
+	}
+
+	static async create(items) {
+		const query = sqlForCreate("companies", items);
+		const results = await db.query(query["queryString"], query["values"]);
+		return results.rows[0];
 	}
 }
 
