@@ -9,3 +9,4 @@ CREATE TABLE companies (
 );
 
 INSERT INTO companies (handle, name, num_employees, description, logo_url) VALUES ('GOOG', 'Google', 100, 'Best search engine ever', 'enter logo url here');
+INSERT INTO companies (handle, name, num_employees, description, logo_url) VALUES ('AAPL', 'Apple', 500, 'Best computers dude', 'another logo url');
