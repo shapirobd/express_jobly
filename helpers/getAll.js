@@ -16,7 +16,7 @@ function sqlForGetAll(table, filters) {
 		idx++;
 	}
 	let employeesQuery = generateEmployeeQuery(filters, idx, nameQuery);
-	let queryString = `SELECT * FROM ${table} ${nameQuery} ${employeesQuery}`;
+	let queryString = `SELECT handle, name FROM ${table} ${nameQuery} ${employeesQuery}`;
 
 	removeUndefinedFilters(filters);
 	let values = Object.values(filters);
@@ -33,25 +33,25 @@ function removeUndefinedFilters(filters) {
 
 function generateNameQuery(filters, idx) {
 	if (filters["search"]) {
-		return `WHERE name=$${idx}`;
+		return `WHERE name=$${idx} OR handle=$${idx}`;
 	}
 	return "";
 }
 
 function handleMinMax(filters, idx) {
 	if (
-		Number.isInteger(parseInt(filters["min_employees"])) &&
-		Number.isInteger(parseInt(filters["max_employees"]))
+		Number.isInteger(parseInt(filters["min"])) &&
+		Number.isInteger(parseInt(filters["max"]))
 	) {
 		return generateMinMaxQuery(idx);
 	} else if (
-		Number.isInteger(parseInt(filters["min_employees"])) &&
-		!Number.isInteger(parseInt(filters["max_employees"]))
+		Number.isInteger(parseInt(filters["min"])) &&
+		!Number.isInteger(parseInt(filters["max"]))
 	) {
 		return generateMinQuery(idx);
 	} else if (
-		!Number.isInteger(parseInt(filters["min_employees"])) &&
-		Number.isInteger(parseInt(filters["max_employees"]))
+		!Number.isInteger(parseInt(filters["min"])) &&
+		Number.isInteger(parseInt(filters["max"]))
 	) {
 		return generateMaxQuery(idx);
 	}

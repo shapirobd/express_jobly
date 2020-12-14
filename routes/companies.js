@@ -37,7 +37,7 @@ router.post("/", async (req, res, next) => {
 			return next(error);
 		}
 		const company = await Company.create(req.body);
-		return res.json({ company: company });
+		return res.status(201).json({ company: company });
 	} catch (e) {
 		return next(e);
 	}
