@@ -253,7 +253,6 @@ describe("Test PATCH /jobs/:id route", () => {
 	});
 	it("should return an error if job with given id can't be found", async () => {
 		const resp = await request(app).patch(`/jobs/999999`).send(job1_update);
-		console.log(resp);
 		expect(resp.status).toBe(404);
 		expect(resp.body).toEqual({ status: 404, message: "Job not found." });
 	});
@@ -271,18 +270,22 @@ describe("Test PATCH /jobs/:id route", () => {
 	});
 });
 
-// describe("Test DELETE /jobs/:handle route", () => {
-// 	it("should delete a company", async () => {
-// 		const resp = await request(app).delete(`/jobs/${company2.handle}`);
-// 		expect(resp.status).toBe(200);
-// 		expect(resp.body).toEqual({ message: "Company deleted" });
-// 	});
-// 	it("should return an error if company with given handle can't be found", async () => {
-// 		const resp = await request(app).delete(`/jobs/MYNAMEISBRIAN`);
-// 		expect(resp.status).toBe(404);
-// 		expect(resp.body).toEqual({ status: 404, message: "Company not found." });
-// 	});
-// });
+describe("Test DELETE /jobs/:id route", () => {
+	it("should delete a job", async () => {
+		const job = await queryJob(job2);
+		const company = await queryCompany(job2);
+		const resp = await request(app).delete(`/jobs/${job.id}`);
+		expect(resp.status).toBe(200);
+		expect(resp.body).toEqual({ message: "Job deleted" });
+		const getResp = await request(app).get(`/jobs/${job.id}`);
+		expect(getResp.body).toEqual({ status: 404, message: "Job not found." });
+	});
+	it("should return an error if job with given id can't be found", async () => {
+		const resp = await request(app).delete(`/jobs/99999999`);
+		expect(resp.status).toBe(404);
+		expect(resp.body).toEqual({ status: 404, message: "Job not found." });
+	});
+});
 
 afterAll(async () => {
 	await db.end();

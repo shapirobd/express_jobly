@@ -10,7 +10,6 @@ const router = new express.Router();
 router.post("/", async (req, res, next) => {
 	try {
 		const result = jsonschema.validate(req.body, jobSchema);
-		console.log(result.valid);
 		if (!result.valid) {
 			const errorList = result.errors.map((error) => error.stack);
 			const error = new ExpressError(errorList, 400);
