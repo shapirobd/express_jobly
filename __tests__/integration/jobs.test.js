@@ -83,7 +83,7 @@ beforeEach(async () => {
 });
 
 describe("Test GET /jobs route", () => {
-	it("should return all jobs (no query params)", async () => {
+	it("should return all jobs in order of date posted (no query params)", async () => {
 		const resp = await request(app).get("/jobs");
 		expect(resp.status).toBe(200);
 		expect(resp.body).toEqual({
@@ -99,30 +99,29 @@ describe("Test GET /jobs route", () => {
 			],
 		});
 	});
-	it("should return all jobs with certain company_handle (no min_salry/min_equity)", async () => {
-		const resp = await request(app).get(`/jobs?search=${job1.title}`);
+	it("should return all jobs with certain title (no min_salry/min_equity)", async () => {
+		const resp = await request(app).get(`/jobs?search=${job2.title}`);
+		console.log(resp.body);
 		expect(resp.body).toEqual({
 			jobs: [
 				{
-					title: job1.title,
-					company_handle: job1.company_handle,
+					title: job2.title,
+					company_handle: job2.company_handle,
 				},
 			],
 		});
 	});
-	// it("should return all jobs with at least min_employee amount of employees (no max_employee or search)", async () => {
-	// 	const resp = await request(app).get(
-	// 		`/jobs?min_employees=${company2.num_employees}`
-	// 	);
-	// 	expect(resp.body).toEqual({
-	// 		jobs: [
-	// 			{
-	// 				handle: company2.handle,
-	// 				name: company2.name,
-	// 			},
-	// 		],
-	// 	});
-	// });
+	it("should return all jobs with at least min_salary (no min_equity or search)", async () => {
+		const resp = await request(app).get(`/jobs?min_employees=${job2.salary}`);
+		expect(resp.body).toEqual({
+			jobs: [
+				{
+					title: job2.title,
+					company_handle: job2.company_handle,
+				},
+			],
+		});
+	});
 	// it("should return all jobs with at most max_employee amount of employees (no min_employee or search)", async () => {
 	// 	const resp = await request(app).get(
 	// 		`/jobs?max_employees=${company1.num_employees}`

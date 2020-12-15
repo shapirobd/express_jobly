@@ -67,15 +67,15 @@ function generateEmployeeQuery(filters, idx, nameQuery) {
 }
 
 function generateMinMaxQuery(idx) {
-	return `AND num_employees >= $${idx} AND num_employees <= $${idx + 1}`;
+	return `AND num_employees > $${idx} AND num_employees < $${idx + 1}`;
 }
 
 function generateMinQuery(idx) {
-	return `AND num_employees >= $${idx}`;
+	return `AND num_employees > $${idx}`;
 }
 
 function generateMaxQuery(idx) {
-	return `AND num_employees <= $${idx}`;
+	return `AND num_employees < $${idx}`;
 }
 
 module.exports = sqlForGetAllCompanies;

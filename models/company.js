@@ -29,7 +29,6 @@ class Company {
 			min: min_employees,
 			max: max_employees,
 		});
-		console.log(query);
 		const results = await db.query(query["queryString"], query["values"]);
 		return results.rows;
 	}

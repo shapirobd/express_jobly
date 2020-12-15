@@ -3,7 +3,7 @@ function sqlForGetAllJobs(table, filters) {
 	let idx = 1;
 	let titleQuery = generateTitleQuery(filters, idx);
 	idx = incrementIfNotEmpty(titleQuery, idx);
-	if ((idx = 2)) {
+	if (idx === 2) {
 		filters["search"] = `%${filters["search"]}%`;
 	}
 	let minSalaryQuery = generateMinSalaryQuery(filters, idx, titleQuery);
@@ -76,11 +76,11 @@ function generateMinEquityQuery(filters, idx, titleQuery, minSalaryQuery) {
 }
 
 function minSalarySubstring(idx) {
-	return `AND salary >= $${idx}`;
+	return `AND salary > $${idx}`;
 }
 
 function minEquitySubstring(idx) {
-	return `AND equity >= $${idx}`;
+	return `AND equity > $${idx}`;
 }
 
 module.exports = sqlForGetAllJobs;

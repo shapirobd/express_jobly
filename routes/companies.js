@@ -16,8 +16,8 @@ const router = new express.Router();
 router.get("/", async (req, res, next) => {
 	try {
 		const search = req.query.search;
-		const min_employees = req.query.min_employees;
-		const max_employees = req.query.max_employees;
+		const min_employees = parseInt(req.query.min_employees);
+		const max_employees = parseInt(req.query.max_employees);
 		const companies = await Company.getAll(
 			search,
 			min_employees,
