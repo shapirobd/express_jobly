@@ -1,11 +1,23 @@
 function sqlForCreate(table, items) {
-	const { handle, name, num_employees, description, logo_url } = items;
+	console.log("FOUND!!");
+	let idx = 1;
+	let values = [];
+	let columns = [];
+	let indecies = [];
+	for (let column in items) {
+		values.push(items[column]);
+		columns.push(`${column}`);
+		indecies.push(`$${idx}`);
+		idx += 1;
+	}
+	const cols = columns.join(", ");
+	const idxs = indecies.join(", ");
 	const queryString = `
-    INSERT INTO ${table} (handle, name, num_employees, description, logo_url)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING handle, name, num_employees, description, logo_url
+    INSERT INTO ${table} (${cols})
+    VALUES (${idxs})
+    RETURNING ${cols}
     `;
-	const values = [handle, name, num_employees, description, logo_url];
+	console.log(queryString);
 	return { queryString, values };
 }
 

@@ -3,6 +3,8 @@ process.env.NODE_ENV = "test";
 const request = require("supertest");
 const app = require("../../app");
 const db = require("../../db");
+const jwt = require("jsonwebtoken");
+const { SECRET_KEY } = require("../../config");
 
 const company1 = {
 	handle: "GOOG",
