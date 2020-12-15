@@ -2,14 +2,14 @@ const express = require("express");
 const ExpressError = require("../helpers/expressError");
 const Job = require("../models/job");
 const jsonschema = require("jsonschema");
-const companySchema = require("../schemas/companySchema.json");
+const jobSchema = require("../schemas/jobSchema.json");
 
 const router = new express.Router();
 
 // create & add a new job to the database
 router.post("/", async (req, res, next) => {
 	try {
-		const result = jsonschema.validate(companySchema, req.body);
+		const result = jsonschema.validate(jobSchema, req.body);
 		if (!result.valid) {
 			const errorList = result.errors.map((error) => error.stack);
 			const error = new ExpressError(errorList, 400);
@@ -47,7 +47,13 @@ router.get("/:id", async (req, res, next) => {
 
 router.patch("/:id", async (req, res, next) => {
 	try {
-		const job = await Job.partialUpdate(req.params.id);
+		const result = jsonschema.validate(jobSchema, req.body);
+		if (!result.valid) {
+			const errorList = result.errors.map((error) => error.stack);
+			const error = new ExpressError(errorList, 400);
+			return next(error);
+		}
+		const job = await Job.partialUpdate(req.params.id, req.body);
 		return res.json({ job: job });
 	} catch (e) {
 		return next(e);

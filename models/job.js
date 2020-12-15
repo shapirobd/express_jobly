@@ -52,11 +52,11 @@ class Job {
 		return job;
 	}
 
-	// static async update(data) {
-	// 	const query = sqlForPartialUpdate(data);
-	// 	const result = await db.query(query["queryString"], query["values"]);
-	// 	return result.rows[0];
-	// }
+	static async partialUpdate(id, data) {
+		const query = sqlForPartialUpdate("jobs", data, "id", id);
+		const result = await db.query(query["query"], query["values"]);
+		return result.rows[0];
+	}
 
 	// static async delete(handle) {
 	// 	const query = sqlForDelete(handle);
