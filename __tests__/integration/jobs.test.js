@@ -34,7 +34,7 @@ const newJob = {
 	title: "Project Manager",
 	salary: 999999.0,
 	equity: 0.15,
-	company_handle: "AMZN",
+	company_handle: "AAPL",
 };
 const invalidJob = {
 	title: 123,
@@ -48,6 +48,18 @@ const job1_update = {
 	equity: 0.12,
 	company_handle: "GOOG",
 };
+
+const invalidSchemaErrors = [
+	"instance.title is not of a type(s) string",
+	"instance.salary is not of a type(s) number",
+	"instance.equity is not of a type(s) number",
+	"instance.company_handle is not of a type(s) string",
+];
+
+function formatDate(job) {
+	job["date_posted"] = job["date_posted"].toISOString();
+	return job;
+}
 
 beforeEach(async () => {
 	await db.query(`DELETE FROM jobs`);
@@ -101,7 +113,6 @@ describe("Test GET /jobs route", () => {
 	});
 	it("should return all jobs with certain title (no min_salry/min_equity)", async () => {
 		const resp = await request(app).get(`/jobs?search=${job2.title}`);
-		console.log(resp.body);
 		expect(resp.body).toEqual({
 			jobs: [
 				{
@@ -171,37 +182,38 @@ describe("Test GET /jobs route", () => {
 	});
 });
 
-// describe("Test POST /jobs route", () => {
-// 	it("should create a new company", async () => {
-// 		const resp = await request(app).post(`/jobs`).send(newCompany);
-// 		expect(resp.status).toBe(201);
-// 		expect(resp.body).toEqual({ company: newCompany });
-// 		const getResp = await request(app).get("/jobs");
-// 		expect(getResp.body.jobs).toContainEqual({
-// 			handle: newCompany.handle,
-// 			name: newCompany.name,
-// 		});
-// 	});
-// 	it("should return an error if schema not matched", async () => {
-// 		const resp = await request(app).post(`/jobs`).send(invalidCompany);
-// 		expect(resp.status).toBe(400);
-// 		expect(resp.body).toEqual({
-// 			status: 400,
-// 			message: [
-// 				"instance.handle is not of a type(s) string",
-// 				"instance.name is not of a type(s) string",
-// 				"instance.num_employees is not of a type(s) integer",
-// 				"instance.description is not of a type(s) string",
-// 				"instance.logo_url is not of a type(s) string",
-// 			],
-// 		});
-// 		const getResp = await request(app).get("/jobs");
-// 		expect(getResp.body.jobs).not.toContainEqual({
-// 			handle: newCompany.handle,
-// 			name: newCompany.name,
-// 		});
-// 	});
-// });
+describe("Test POST /jobs route", () => {
+	it("should create a new job", async () => {
+		const resp = await request(app).post(`/jobs`).send(newJob);
+		expect(resp.status).toBe(201);
+		expect(resp.body).toEqual({ job: newJob });
+		const queriedJob = await db.query(
+			`SELECT * FROM jobs WHERE title='${newJob.title}'`
+		);
+		const job = formatDate(queriedJob.rows[0]);
+		delete job.company_handle;
+		const newJobId = job.id;
+		const getResp = await request(app).get(`/jobs/${newJobId}`);
+		const queriedCompany = await db.query(
+			`SELECT * FROM companies WHERE handle='${newJob.company_handle}'`
+		);
+		const company = queriedCompany.rows[0];
+		console.log(job);
+		expect(getResp.body).toEqual({ job: { ...job, company } });
+	});
+	it("should return an error if schema not matched", async () => {
+		const resp = await request(app).post(`/jobs`).send(invalidJob);
+		expect(resp.status).toBe(400);
+		expect(resp.body).toEqual({
+			status: 400,
+			message: invalidSchemaErrors,
+		});
+		const queriedJob = await db.query(
+			`SELECT * FROM jobs WHERE title='${invalidJob.title}'`
+		);
+		expect(queriedJob.rows.length).toBe(0);
+	});
+});
 
 // describe("Test GET /jobs/:handle route", () => {
 // 	it("should get info on company with given handle", async () => {

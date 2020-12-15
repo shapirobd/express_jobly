@@ -9,14 +9,15 @@ const router = new express.Router();
 // create & add a new job to the database
 router.post("/", async (req, res, next) => {
 	try {
-		const result = jsonschema.validate(jobSchema, req.body);
+		const result = jsonschema.validate(req.body, jobSchema);
+		console.log(result.valid);
 		if (!result.valid) {
 			const errorList = result.errors.map((error) => error.stack);
 			const error = new ExpressError(errorList, 400);
 			return next(error);
 		}
 		const job = await Job.create(req.body);
-		return res.json({ job: job });
+		return res.status(201).json({ job: job });
 	} catch (e) {
 		return next(e);
 	}

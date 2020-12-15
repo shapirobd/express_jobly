@@ -54,14 +54,7 @@ const company1_update = {
 	logo_url: "this is a logo url",
 };
 
-const invalidPostSchemaErrors = [
-	"instance.handle is not of a type(s) string",
-	"instance.name is not of a type(s) string",
-	"instance.num_employees is not of a type(s) integer",
-	"instance.description is not of a type(s) string",
-	"instance.logo_url is not of a type(s) string",
-];
-const invalidPatchSchemaErrors = [
+const invalidSchemaErrors = [
 	"instance.handle is not of a type(s) string",
 	"instance.name is not of a type(s) string",
 	"instance.num_employees is not of a type(s) integer",
@@ -217,7 +210,7 @@ describe("Test POST /companies route", () => {
 		expect(resp.status).toBe(400);
 		expect(resp.body).toEqual({
 			status: 400,
-			message: invalidPostSchemaErrors,
+			message: invalidSchemaErrors,
 		});
 		const getResp = await request(app).get(
 			`/companies/${invalidCompany.handle}`
@@ -291,7 +284,7 @@ describe("Test PATCH /companies/:handle route", () => {
 		expect(resp.status).toBe(400);
 		expect(resp.body).toEqual({
 			status: 400,
-			message: invalidPatchSchemaErrors,
+			message: invalidSchemaErrors,
 		});
 		const getResp = await request(app).get(`/companies/${company1.handle}`);
 		const queriedJobs = await db.query(

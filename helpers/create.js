@@ -1,5 +1,4 @@
 function sqlForCreate(table, items) {
-	console.log("FOUND!!");
 	let idx = 1;
 	let values = [];
 	let columns = [];
@@ -17,7 +16,6 @@ function sqlForCreate(table, items) {
     VALUES (${idxs})
     RETURNING ${cols}
     `;
-	console.log(queryString);
 	return { queryString, values };
 }
 
