@@ -268,14 +268,6 @@ describe("Test PATCH /companies/:handle route", () => {
 			.send(company1_update);
 		expect(resp.status).toBe(404);
 		expect(resp.body).toEqual({ status: 404, message: "Company not found." });
-		const getResp = await request(app).get(`/companies/${company1.handle}`);
-		const queriedJobs = await db.query(
-			`SELECT * FROM jobs WHERE company_handle='${company1.handle}'`
-		);
-		const jobs = formatDates(queriedJobs.rows);
-		expect(getResp.body).toEqual({
-			company: { ...company1, jobs },
-		});
 	});
 	it("should return an error if request body doesn't match schema", async () => {
 		const resp = await request(app)

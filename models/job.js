@@ -54,6 +54,10 @@ class Job {
 	static async partialUpdate(id, data) {
 		const query = sqlForPartialUpdate("jobs", data, "id", id);
 		const result = await db.query(query["query"], query["values"]);
+		console.log(result);
+		if (result.rows.length === 0) {
+			throw new ExpressError("Job not found.", 404);
+		}
 		return result.rows[0];
 	}
 

@@ -42,12 +42,7 @@ const invalidJob = {
 	equity: "5 percent",
 	company_handle: { handle: "AMZN" },
 };
-const job1_update = {
-	title: "Internet Technology Representative",
-	salary: 50000.0,
-	equity: 0.12,
-	company_handle: "GOOG",
-};
+let job1_update;
 
 const invalidSchemaErrors = [
 	"instance.title is not of a type(s) string",
@@ -77,6 +72,13 @@ async function queryCompany(job) {
 }
 
 beforeEach(async () => {
+	job1_update = {
+		title: "Internet Technology Representative",
+		salary: 50000.0,
+		equity: 0.12,
+		company_handle: "GOOG",
+	};
+
 	await db.query(`DELETE FROM jobs`);
 	await db.query(`DELETE FROM companies`);
 	await db.query(
@@ -204,8 +206,7 @@ describe("Test POST /jobs route", () => {
 		expect(resp.body).toEqual({ job: newJob });
 		const job = await queryJob(newJob);
 		const company = await queryCompany(newJob);
-		const newJobId = job.id;
-		const getResp = await request(app).get(`/jobs/${newJobId}`);
+		const getResp = await request(app).get(`/jobs/${job.id}`);
 		expect(getResp.body).toEqual({ job: { ...job, company } });
 	});
 	it("should return an error if schema not matched", async () => {
@@ -237,42 +238,38 @@ describe("Test GET /jobs/:id route", () => {
 	});
 });
 
-// describe("Test PATCH /jobs/:handle route", () => {
-// 	it("should update a company", async () => {
-// 		const resp = await request(app)
-// 			.patch(`/jobs/${company1.handle}`)
-// 			.send(company1_update);
-// 		expect(resp.status).toBe(200);
-// 		expect(resp.body).toEqual({ company: company1_update });
-// 		const getResp = await request(app).get(`/jobs/${company1.handle}`);
-// 		expect(getResp.body).toEqual({ company: company1_update });
-// 	});
-// 	it("should return an error if company with given handle can't be found", async () => {
-// 		const resp = await request(app).patch(`/jobs/XYZ321`).send(company1_update);
-// 		expect(resp.status).toBe(404);
-// 		expect(resp.body).toEqual({ status: 404, message: "Company not found." });
-// 		const getResp = await request(app).get(`/jobs/${company1.handle}`);
-// 		expect(getResp.body).toEqual({ company: company1 });
-// 	});
-// 	it("should return an error if request body doesn't match schema", async () => {
-// 		const resp = await request(app)
-// 			.patch(`/jobs/${company1.handle}`)
-// 			.send(invalidCompany);
-// 		expect(resp.status).toBe(400);
-// 		expect(resp.body).toEqual({
-// 			status: 400,
-// 			message: [
-// 				"instance.handle is not of a type(s) string",
-// 				"instance.name is not of a type(s) string",
-// 				"instance.num_employees is not of a type(s) integer",
-// 				"instance.description is not of a type(s) string",
-// 				"instance.logo_url is not of a type(s) string",
-// 			],
-// 		});
-// 		const getResp = await request(app).get(`/jobs/${company1.handle}`);
-// 		expect(getResp.body).toEqual({ company: company1 });
-// 	});
-// });
+describe("Test PATCH /jobs/:id route", () => {
+	it("should update a job", async () => {
+		const job = await queryJob(job1);
+		const company = await queryCompany(job1_update);
+		const resp = await request(app).patch(`/jobs/${job.id}`).send(job1_update);
+		job1_update.date_posted = job.date_posted;
+		job1_update.id = job.id;
+		expect(resp.status).toBe(200);
+		expect(resp.body).toEqual({ job: job1_update });
+		const getResp = await request(app).get(`/jobs/${job.id}`);
+		delete job1_update.company_handle;
+		expect(getResp.body).toEqual({ job: { ...job1_update, company } });
+	});
+	it("should return an error if job with given id can't be found", async () => {
+		const resp = await request(app).patch(`/jobs/999999`).send(job1_update);
+		console.log(resp);
+		expect(resp.status).toBe(404);
+		expect(resp.body).toEqual({ status: 404, message: "Job not found." });
+	});
+	it("should return an error if request body doesn't match schema", async () => {
+		const job = await queryJob(job1);
+		const company = await queryCompany(job1);
+		const resp = await request(app).patch(`/jobs/${job.id}`).send(invalidJob);
+		expect(resp.status).toBe(400);
+		expect(resp.body).toEqual({
+			status: 400,
+			message: invalidSchemaErrors,
+		});
+		const getResp = await request(app).get(`/jobs/${job.id}`);
+		expect(getResp.body).toEqual({ job: { ...job, company } });
+	});
+});
 
 // describe("Test DELETE /jobs/:handle route", () => {
 // 	it("should delete a company", async () => {

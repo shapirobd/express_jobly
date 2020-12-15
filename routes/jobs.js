@@ -48,7 +48,7 @@ router.get("/:id", async (req, res, next) => {
 
 router.patch("/:id", async (req, res, next) => {
 	try {
-		const result = jsonschema.validate(jobSchema, req.body);
+		const result = jsonschema.validate(req.body, jobSchema);
 		if (!result.valid) {
 			const errorList = result.errors.map((error) => error.stack);
 			const error = new ExpressError(errorList, 400);
