@@ -28,6 +28,7 @@ class Job {
 
 	static async getOne(id) {
 		const jobQuery = sqlForGetOne("jobs", "id", id);
+		console.log(jobQuery);
 		const jobResult = await db.query(
 			jobQuery["queryString"],
 			jobQuery["values"]

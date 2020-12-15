@@ -61,6 +61,21 @@ function formatDate(job) {
 	return job;
 }
 
+async function queryJob(job) {
+	const queriedJob = await db.query(
+		`SELECT * FROM jobs WHERE title='${job.title}'`
+	);
+	delete queriedJob.rows[0].company_handle;
+	return formatDate(queriedJob.rows[0]);
+}
+
+async function queryCompany(job) {
+	const queriedCompany = await db.query(
+		`SELECT * FROM companies WHERE handle='${job.company_handle}'`
+	);
+	return queriedCompany.rows[0];
+}
+
 beforeEach(async () => {
 	await db.query(`DELETE FROM jobs`);
 	await db.query(`DELETE FROM companies`);
@@ -187,18 +202,10 @@ describe("Test POST /jobs route", () => {
 		const resp = await request(app).post(`/jobs`).send(newJob);
 		expect(resp.status).toBe(201);
 		expect(resp.body).toEqual({ job: newJob });
-		const queriedJob = await db.query(
-			`SELECT * FROM jobs WHERE title='${newJob.title}'`
-		);
-		const job = formatDate(queriedJob.rows[0]);
-		delete job.company_handle;
+		const job = await queryJob(newJob);
+		const company = await queryCompany(newJob);
 		const newJobId = job.id;
 		const getResp = await request(app).get(`/jobs/${newJobId}`);
-		const queriedCompany = await db.query(
-			`SELECT * FROM companies WHERE handle='${newJob.company_handle}'`
-		);
-		const company = queriedCompany.rows[0];
-		console.log(job);
 		expect(getResp.body).toEqual({ job: { ...job, company } });
 	});
 	it("should return an error if schema not matched", async () => {
@@ -215,18 +222,20 @@ describe("Test POST /jobs route", () => {
 	});
 });
 
-// describe("Test GET /jobs/:handle route", () => {
-// 	it("should get info on company with given handle", async () => {
-// 		const resp = await request(app).get(`/jobs/${company1.handle}`);
-// 		expect(resp.status).toBe(200);
-// 		expect(resp.body).toEqual({ company: company1 });
-// 	});
-// 	it("should return an error if company with given handle can't be found", async () => {
-// 		const resp = await request(app).get(`/jobs/ABCDEFG`);
-// 		expect(resp.status).toBe(404);
-// 		expect(resp.body).toEqual({ status: 404, message: "Company not found." });
-// 	});
-// });
+describe("Test GET /jobs/:id route", () => {
+	it("should get info on job with given id", async () => {
+		const job = await queryJob(job1);
+		const company = await queryCompany(job1);
+		const resp = await request(app).get(`/jobs/${job.id}`);
+		expect(resp.status).toBe(200);
+		expect(resp.body).toEqual({ job: { ...job, company } });
+	});
+	it("should return an error if job with given id can't be found", async () => {
+		const resp = await request(app).get(`/jobs/999999999`);
+		expect(resp.status).toBe(404);
+		expect(resp.body).toEqual({ status: 404, message: "Job not found." });
+	});
+});
 
 // describe("Test PATCH /jobs/:handle route", () => {
 // 	it("should update a company", async () => {
