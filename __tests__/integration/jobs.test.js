@@ -111,8 +111,10 @@ describe("Test GET /jobs route", () => {
 			],
 		});
 	});
-	it("should return all jobs with at least min_salary (no min_equity or search)", async () => {
-		const resp = await request(app).get(`/jobs?min_employees=${job2.salary}`);
+	it("should return all jobs with more than min_salary (no min_equity or search)", async () => {
+		const resp = await request(app).get(
+			`/jobs?min_salary=${job2.salary - 0.01}`
+		);
 		expect(resp.body).toEqual({
 			jobs: [
 				{
@@ -122,49 +124,51 @@ describe("Test GET /jobs route", () => {
 			],
 		});
 	});
-	// it("should return all jobs with at most max_employee amount of employees (no min_employee or search)", async () => {
-	// 	const resp = await request(app).get(
-	// 		`/jobs?max_employees=${company1.num_employees}`
-	// 	);
-	// 	expect(resp.body).toEqual({
-	// 		jobs: [
-	// 			{
-	// 				handle: company1.handle,
-	// 				name: company1.name,
-	// 			},
-	// 		],
-	// 	});
-	// });
-	// it("should return all jobs with between min & max_employees amount of employees(no search)", async () => {
-	// 	const resp = await request(app).get(
-	// 		`/jobs?min_employees=${company1.num_employees}&max_employees=${company2.num_employees}`
-	// 	);
-	// 	expect(resp.body).toEqual({
-	// 		jobs: [
-	// 			{
-	// 				handle: company1.handle,
-	// 				name: company1.name,
-	// 			},
-	// 			{
-	// 				handle: company2.handle,
-	// 				name: company2.name,
-	// 			},
-	// 		],
-	// 	});
-	// });
-	// it("should return all jobs with certain name/handle and rand of amount of employees", async () => {
-	// 	const resp = await request(app).get(
-	// 		`/jobs?search=${company1.name}&min_employees=${company1.num_employees}&max_employees=${company2.num_employees}`
-	// 	);
-	// 	expect(resp.body).toEqual({
-	// 		jobs: [
-	// 			{
-	// 				handle: company1.handle,
-	// 				name: company1.name,
-	// 			},
-	// 		],
-	// 	});
-	// });
+	it("should return all jobs with more than min_equity (no min_salary or search)", async () => {
+		const resp = await request(app).get(
+			`/jobs?min_equity=${job1.equity - 0.01}`
+		);
+		expect(resp.body).toEqual({
+			jobs: [
+				{
+					title: job2.title,
+					company_handle: job2.company_handle,
+				},
+				{
+					title: job1.title,
+					company_handle: job1.company_handle,
+				},
+			],
+		});
+	});
+	it("should return all jobs with min_salary and min_equity (no search)", async () => {
+		const resp = await request(app).get(
+			`/jobs?min_salary=${job1.salary - 0.01}&min_equity=${job2.equity - 0.01}`
+		);
+		expect(resp.body).toEqual({
+			jobs: [
+				{
+					title: job2.title,
+					company_handle: job2.company_handle,
+				},
+			],
+		});
+	});
+	it("should return all jobs with certain title and min_salary and min_equity", async () => {
+		const resp = await request(app).get(
+			`/jobs?search=${job1.title}&min_salary=${job1.salary - 0.01}&min_equity=${
+				job1.equity - 0.01
+			}`
+		);
+		expect(resp.body).toEqual({
+			jobs: [
+				{
+					title: job1.title,
+					company_handle: job1.company_handle,
+				},
+			],
+		});
+	});
 });
 
 // describe("Test POST /jobs route", () => {

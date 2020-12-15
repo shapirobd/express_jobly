@@ -137,7 +137,7 @@ describe("Test GET /companies route", () => {
 			],
 		});
 	});
-	it("should return all companies with at least min_employee amount of employees (no max_employee or search)", async () => {
+	it("should return all companies with more than min_employee amount of employees (no max_employee or search)", async () => {
 		const resp = await request(app).get(
 			`/companies?min_employees=${company2.num_employees - 1}`
 		);
@@ -150,7 +150,7 @@ describe("Test GET /companies route", () => {
 			],
 		});
 	});
-	it("should return all companies with at most max_employee amount of employees (no min_employee or search)", async () => {
+	it("should return all companies with less than max_employee amount of employees (no min_employee or search)", async () => {
 		const resp = await request(app).get(
 			`/companies?max_employees=${company1.num_employees + 1}`
 		);

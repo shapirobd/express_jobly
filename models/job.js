@@ -22,7 +22,6 @@ class Job {
 
 	static async getAll(filters) {
 		const query = sqlForGetAll("jobs", filters);
-		console.log(query);
 		const result = await db.query(query["queryString"], query["values"]);
 		return result.rows;
 	}
