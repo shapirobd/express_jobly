@@ -1,6 +1,6 @@
 const db = require("../db");
 const sqlForPartialUpdate = require("../helpers/partialUpdate");
-const sqlForGetAll = require("../helpers/getAll");
+const sqlForGetAll = require("../helpers/companies/getAll");
 const sqlForCreate = require("../helpers/create");
 const sqlForGetOne = require("../helpers/getOne");
 const sqlForDelete = require("../helpers/delete");

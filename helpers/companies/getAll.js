@@ -61,8 +61,7 @@ function handleMinMax(filters, idx) {
 function generateEmployeeQuery(filters, idx, nameQuery) {
 	let employeesQuery = handleMinMax(filters, idx);
 	if (nameQuery === "" && employeesQuery !== "") {
-		employeesQuery = employeesQuery.slice(3);
-		employeesQuery = "WHERE" + employeesQuery;
+		employeesQuery = "WHERE" + employeesQuery.slice(3);
 	}
 	return employeesQuery;
 }

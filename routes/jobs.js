@@ -6,6 +6,7 @@ const companySchema = require("../schemas/companySchema.json");
 
 const router = new express.Router();
 
+// create & add a new job to the database
 router.post("/", async (req, res, next) => {
 	try {
 		const result = jsonschema.validate(companySchema, req.body);
@@ -23,7 +24,12 @@ router.post("/", async (req, res, next) => {
 
 router.get("/", async (req, res, next) => {
 	try {
-		const jobs = await Job.getAll();
+		const filters = {
+			search: req.query.search,
+			min_salary: req.query.min_salary,
+			min_equity: req.query.min_equity,
+		};
+		const jobs = await Job.getAll(filters);
 		return res.json({ jobs: jobs });
 	} catch (e) {
 		return next(e);
