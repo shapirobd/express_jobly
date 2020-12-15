@@ -31,9 +31,12 @@ class User {
 		return result.rows[0];
 	}
 
-	// static async getAll() {
-
-	// }
+	static async getAll() {
+		const result = await db.query(
+			`SELECT username, first_name, last_name email FROM users`
+		);
+		return result.rows;
+	}
 
 	// static async getOne(username) {
 
