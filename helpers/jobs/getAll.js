@@ -3,6 +3,9 @@ function sqlForGetAllJobs(table, filters) {
 	let idx = 1;
 	let titleQuery = generateTitleQuery(filters, idx);
 	idx = incrementIfNotEmpty(titleQuery, idx);
+	if ((idx = 2)) {
+		filters["search"] = `%${filters["search"]}%`;
+	}
 	let minSalaryQuery = generateMinSalaryQuery(filters, idx, titleQuery);
 	idx = incrementIfNotEmpty(minSalaryQuery, idx);
 
@@ -13,7 +16,7 @@ function sqlForGetAllJobs(table, filters) {
 		minSalaryQuery
 	);
 
-	let queryString = `SELECT title, company_handle FROM ${table} ${titleQuery} ${minSalaryQuery} ${minEquityQuery}`;
+	let queryString = `SELECT title, company_handle FROM ${table} ${titleQuery} ${minSalaryQuery} ${minEquityQuery} ORDER BY date_posted DESC`;
 	removeUndefinedFilters(filters);
 	let values = Object.values(filters);
 	return { queryString, values };
@@ -37,7 +40,7 @@ function removeUndefinedFilters(filters) {
 
 function generateTitleQuery(filters, idx) {
 	if (filters["search"]) {
-		return `WHERE title=$${idx}`;
+		return `WHERE title ilike $${idx}`;
 	}
 	return "";
 }
