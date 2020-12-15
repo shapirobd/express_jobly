@@ -8,7 +8,7 @@
  *
  */
 
-function sqlForGetAll(table, filters) {
+function sqlForGetAllCompanies(table, filters) {
 	// build query
 	let idx = 1;
 	let nameQuery = generateNameQuery(filters, idx);
@@ -78,4 +78,4 @@ function generateMaxQuery(idx) {
 	return `AND num_employees <= $${idx}`;
 }
 
-module.exports = sqlForGetAll;
+module.exports = sqlForGetAllCompanies;

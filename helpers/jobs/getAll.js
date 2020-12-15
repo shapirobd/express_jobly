@@ -1,4 +1,4 @@
-function sqlForGetAll(table, filters) {
+function sqlForGetAllJobs(table, filters) {
 	// build query
 	let idx = 1;
 	let titleQuery = generateTitleQuery(filters, idx);
@@ -80,4 +80,4 @@ function minEquitySubstring(idx) {
 	return `AND equity >= $${idx}`;
 }
 
-module.exports = sqlForGetAll;
+module.exports = sqlForGetAllJobs;

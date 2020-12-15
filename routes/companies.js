@@ -3,6 +3,7 @@ const ExpressError = require("../helpers/expressError");
 const Company = require("../models/company");
 const jsonschema = require("jsonschema");
 const companySchema = require("../schemas/companySchema.json");
+const Job = require("../models/job");
 
 const router = new express.Router();
 
@@ -22,6 +23,7 @@ router.get("/", async (req, res, next) => {
 			min_employees,
 			max_employees
 		);
+
 		return res.json({ companies: companies });
 	} catch (e) {
 		return next(e);

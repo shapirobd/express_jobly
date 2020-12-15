@@ -1,6 +1,7 @@
 const db = require("../db");
 const sqlForPartialUpdate = require("../helpers/partialUpdate");
-const sqlForGetAll = require("../helpers/companies/getAll");
+const sqlForGetAllCompanies = require("../helpers/companies/getAll");
+const sqlForGetCompanyJobs = require("../helpers/joinHelpers");
 const sqlForCreate = require("../helpers/create");
 const sqlForGetOne = require("../helpers/getOne");
 const sqlForDelete = require("../helpers/delete");
@@ -23,7 +24,7 @@ class Company {
 				400
 			);
 		}
-		const query = sqlForGetAll("companies", {
+		const query = sqlForGetAllCompanies("companies", {
 			search: search,
 			min: min_employees,
 			max: max_employees,
@@ -40,12 +41,23 @@ class Company {
 	}
 
 	static async getByHandle(handle) {
-		const query = sqlForGetOne("companies", "handle", handle);
-		const results = await db.query(query["queryString"], query["values"]);
-		if (results.rows.length === 0) {
+		const companyQuery = sqlForGetOne("companies", "handle", handle);
+		const companyResults = await db.query(
+			companyQuery["queryString"],
+			companyQuery["values"]
+		);
+		if (companyResults.rows.length === 0) {
 			throw new ExpressError("Company not found.", 404);
 		}
-		return results.rows[0];
+		const company = companyResults.rows[0];
+		const jobsQuery = sqlForGetCompanyJobs(handle);
+		const jobsResults = await db.query(
+			jobsQuery["queryString"],
+			jobsQuery["values"]
+		);
+		console.log(jobsResults.rows);
+		company.jobs = jobsResults.rows;
+		return company;
 	}
 
 	static async updateOne(items, handle) {
