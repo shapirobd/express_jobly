@@ -4,6 +4,7 @@ const sqlForGetOne = require("../helpers/getOne");
 const sqlForPartialUpdate = require("../helpers/partialUpdate");
 const sqlForDelete = require("../helpers/delete");
 const db = require("../db");
+const ExpressError = require("../helpers/expressError");
 
 class Job {
 	constructor(title, salary, equity, comp_handle) {
@@ -27,11 +28,29 @@ class Job {
 		return result.rows;
 	}
 
-	// static async getOne(handle) {
-	// 	const query = sqlForGetOne("jobs", handle);
-	// 	const result = await db.query(query["queryString"], query["values"]);
-	// 	return result.rows[0];
-	// }
+	static async getOne(id) {
+		const jobQuery = sqlForGetOne("jobs", "id", id);
+		const jobResult = await db.query(
+			jobQuery["queryString"],
+			jobQuery["values"]
+		);
+		if (jobResult.rows.length === 0) {
+			throw new ExpressError("Job not found.", 404);
+		}
+		const job = jobResult.rows[0];
+		const companyQuery = sqlForGetOne(
+			"companies",
+			"handle",
+			job.company_handle
+		);
+		const companyResult = await db.query(
+			companyQuery["queryString"],
+			companyQuery["values"]
+		);
+		delete job.company_handle;
+		job.company = companyResult.rows[0];
+		return job;
+	}
 
 	// static async update(data) {
 	// 	const query = sqlForPartialUpdate(data);
