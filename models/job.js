@@ -58,11 +58,12 @@ class Job {
 		return result.rows[0];
 	}
 
-	// static async delete(handle) {
-	// 	const query = sqlForDelete(handle);
-	// 	const result = await db.query(query["queryString"], query["values"]);
-	// 	return result.rows[0];
-	// }
+	static async delete(id) {
+		const query = sqlForDelete("jobs", "id", id);
+		console.log(query);
+		const result = await db.query(query["queryString"], query["values"]);
+		return result.rows[0];
+	}
 }
 
 module.exports = Job;
