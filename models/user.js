@@ -38,9 +38,11 @@ class User {
 		return result.rows;
 	}
 
-	// static async getOne(username) {
-
-	// }
+	static async getOne(username) {
+		const query = sqlForGetOne("users", "username", username);
+		const result = await db.query(query["queryString"], query["values"]);
+		return result.rows[0];
+	}
 
 	// static async partialUpdate(username, data) {
 
