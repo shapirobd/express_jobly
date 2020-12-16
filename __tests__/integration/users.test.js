@@ -170,22 +170,20 @@ describe("Test PATCH /users/:username route", () => {
 	});
 });
 
-// describe("Test DELETE /users/:username route", () => {
-// 	it("should delete a users", async () => {
-// 		const users = await queryusers(users2);
-// 		const user = await queryuser(users2);
-// 		const resp = await request(app).delete(`/users/${users.username}`);
-// 		expect(resp.status).toBe(200);
-// 		expect(resp.body).toEqual({ message: "users deleted" });
-// 		const getResp = await request(app).get(`/users/${users.username}`);
-// 		expect(getResp.body).toEqual({ status: 404, message: "users not found." });
-// 	});
-// 	it("should return an error if users with given username can't be found", async () => {
-// 		const resp = await request(app).delete(`/users/99999999`);
-// 		expect(resp.status).toBe(404);
-// 		expect(resp.body).toEqual({ status: 404, message: "users not found." });
-// 	});
-// });
+describe("Test DELETE /users/:username route", () => {
+	it("should delete a user", async () => {
+		const resp = await request(app).delete(`/users/${user2.username}`);
+		expect(resp.status).toBe(200);
+		expect(resp.body).toEqual({ message: "User deleted" });
+		const getResp = await request(app).get(`/users/${user2.username}`);
+		expect(getResp.body).toEqual({ status: 404, message: "User not found." });
+	});
+	it("should return an error if user with given username can't be found", async () => {
+		const resp = await request(app).delete(`/users/INVALIDUSERNAME`);
+		expect(resp.status).toBe(404);
+		expect(resp.body).toEqual({ status: 404, message: "User not found." });
+	});
+});
 
 afterAll(async () => {
 	await db.end();
