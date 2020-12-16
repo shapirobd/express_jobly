@@ -7,9 +7,11 @@ const cRoutes = require("./routes/companies");
 const jRoutes = require("./routes/jobs");
 const uRoutes = require("./routes/users");
 const aRoutes = require("./routes/auth");
+const { authenticateJWT } = require("./middleware/auth");
 const app = express();
 
 app.use(express.json());
+app.use(authenticateJWT);
 app.use("/companies", cRoutes);
 app.use("/jobs", jRoutes);
 app.use("/users", uRoutes);
@@ -18,7 +20,6 @@ app.use("/", aRoutes);
 app.use(morgan("tiny"));
 
 /** 404 handler */
-
 app.use(function (req, res, next) {
 	const err = new ExpressError("Not Found", 404);
 
@@ -27,7 +28,6 @@ app.use(function (req, res, next) {
 });
 
 /** general error handler */
-
 app.use(function (err, req, res, next) {
 	res.status(err.status || 500);
 	console.error(err.stack);

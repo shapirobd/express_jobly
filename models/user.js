@@ -36,9 +36,7 @@ class User {
 		let token;
 		if (user) {
 			if (await bcrypt.compare(password, user.password)) {
-				user.is_admin
-					? (token = jwt.sign({ username, type: "admin" }, SECRET_KEY))
-					: (token = jwt.sign({ username }, SECRET_KEY));
+				let token = jwt.sign({ username, is_admin: user.is_admin }, SECRET_KEY);
 				return token;
 			}
 		}
@@ -46,11 +44,13 @@ class User {
 	}
 
 	static async register(data) {
-		data.password = await bcrypt.hash(data.password, BCRYPT_WORK_FACTOR);
+		const { username, password } = data;
+		data.password = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
 		const query = sqlForCreate("users", data);
 		const result = await db.query(query["queryString"], query["values"]);
-		delete result.rows[0].password;
-		return result.rows[0];
+		const user = result.rows[0];
+		let token = jwt.sign({ username, is_admin: user.is_admin }, SECRET_KEY);
+		return token;
 	}
 
 	static async getAll() {

@@ -3,6 +3,7 @@ const ExpressError = require("../helpers/expressError");
 const Job = require("../models/job");
 const jsonschema = require("jsonschema");
 const jobSchema = require("../schemas/jobSchema.json");
+const { ensureLoggedIn, ensureAdmin } = require("../middleware/auth");
 
 const router = new express.Router();
 
@@ -22,7 +23,7 @@ router.post("/", async (req, res, next) => {
 	}
 });
 
-router.get("/", async (req, res, next) => {
+router.get("/", ensureLoggedIn, async (req, res, next) => {
 	try {
 		const filters = {
 			search: req.query.search,
@@ -36,7 +37,7 @@ router.get("/", async (req, res, next) => {
 	}
 });
 
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", ensureLoggedIn, async (req, res, next) => {
 	try {
 		const job = await Job.getOne(req.params.id);
 		return res.json({ job: job });

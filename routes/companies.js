@@ -3,7 +3,7 @@ const ExpressError = require("../helpers/expressError");
 const Company = require("../models/company");
 const jsonschema = require("jsonschema");
 const companySchema = require("../schemas/companySchema.json");
-const Job = require("../models/job");
+const { ensureLoggedIn, ensureAdmin } = require("../middleware/auth");
 
 const router = new express.Router();
 
@@ -13,7 +13,7 @@ const router = new express.Router();
 // min_employees: If the query string parameter is passed, titles and company handles should be displayed that have a number of employees greater than the value of the query string parameter.
 // max_employees: If the query string parameter is passed, a list of titles and company handles should be displayed that have a number of employees less than the value of the query string parameter.
 // If the min_employees parameter is greater than the max_employees parameter, respond with a 400 status and a message notifying that the parameters are incorrect.
-router.get("/", async (req, res, next) => {
+router.get("/", ensureLoggedIn, async (req, res, next) => {
 	try {
 		const search = req.query.search;
 		const min_employees = parseInt(req.query.min_employees);
@@ -45,7 +45,7 @@ router.post("/", async (req, res, next) => {
 	}
 });
 
-router.get("/:handle", async (req, res, next) => {
+router.get("/:handle", ensureLoggedIn, async (req, res, next) => {
 	try {
 		const company = await Company.getByHandle(req.params.handle);
 		return res.json({ company: company });
