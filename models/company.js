@@ -4,7 +4,6 @@ const sqlForGetAllCompanies = require("../helpers/companies/getAll");
 const sqlForGetCompanyJobs = require("../helpers/joinHelpers");
 const sqlForCreate = require("../helpers/create");
 const sqlForGetOne = require("../helpers/getOne");
-const sqlForDelete = require("../helpers/delete");
 const ExpressError = require("../helpers/expressError");
 
 class Company {
@@ -69,8 +68,10 @@ class Company {
 	}
 
 	static async delete(handle) {
-		const query = sqlForDelete("companies", "handle", handle);
-		const results = await db.query(query["queryString"], query["values"]);
+		const results = await db.query(
+			`DELETE FROM companies WHERE handle=$1 RETURNING *`,
+			[handle]
+		);
 		if (results.rows.length === 0) {
 			throw new ExpressError("Company not found.", 404);
 		}

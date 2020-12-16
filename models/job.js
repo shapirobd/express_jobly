@@ -2,7 +2,6 @@ const sqlForCreate = require("../helpers/create");
 const sqlForGetAll = require("../helpers/jobs/getAll");
 const sqlForGetOne = require("../helpers/getOne");
 const sqlForPartialUpdate = require("../helpers/partialUpdate");
-const sqlForDelete = require("../helpers/delete");
 const db = require("../db");
 const ExpressError = require("../helpers/expressError");
 
@@ -60,8 +59,9 @@ class Job {
 	}
 
 	static async delete(id) {
-		const query = sqlForDelete("jobs", "id", id);
-		const result = await db.query(query["queryString"], query["values"]);
+		const result = await db.query(`DELETE FROM jobs WHERE id=$1 RETURNING *`, [
+			id,
+		]);
 		if (result.rows.length === 0) {
 			throw new ExpressError("Job not found.", 404);
 		}

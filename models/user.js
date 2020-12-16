@@ -1,8 +1,6 @@
 const sqlForCreate = require("../helpers/create");
-const sqlForGetAll = require("../helpers/jobs/getAll");
 const sqlForGetOne = require("../helpers/getOne");
 const sqlForPartialUpdate = require("../helpers/partialUpdate");
-const sqlForDelete = require("../helpers/delete");
 const db = require("../db");
 const ExpressError = require("../helpers/expressError");
 
@@ -41,19 +39,31 @@ class User {
 	static async getOne(username) {
 		const query = sqlForGetOne("users", "username", username);
 		const result = await db.query(query["queryString"], query["values"]);
+		if (result.rows.length === 0) {
+			throw new ExpressError("User not found.", 404);
+		}
 		return result.rows[0];
 	}
 
 	static async partialUpdate(username, data) {
 		const query = sqlForPartialUpdate("users", data, "username", username);
 		const result = await db.query(query["query"], query["values"]);
+		if (result.rows.length === 0) {
+			throw new ExpressError("User not found.", 404);
+		}
 		delete result.rows[0].password;
 		return result.rows[0];
 	}
 
-	// static async delete(username) {
-
-	// }
+	static async delete(username) {
+		const result = await db.query(
+			`DELETE FROM users WHERE username=$1 RETURNING *`,
+			[username]
+		);
+		if (result.rows.length === 0) {
+			throw new ExpressError("User not found.", 404);
+		}
+	}
 }
 
 module.exports = User;
