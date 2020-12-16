@@ -4,8 +4,8 @@ const sqlForPartialUpdate = require("../helpers/partialUpdate");
 const db = require("../db");
 const ExpressError = require("../helpers/expressError");
 const bcrypt = require("bcrypt");
-
-const { BCRYPT_WORK_FACTOR } = "../config";
+const jwt = require("jsonwebtoken");
+const { SECRET_KEY, BCRYPT_WORK_FACTOR } = require("../config");
 
 class User {
 	constructor(
@@ -26,8 +26,27 @@ class User {
 		this.is_admin = is_admin;
 	}
 
+	static async login(data) {
+		const { username, password } = data;
+		const result = await db.query(
+			`SELECT username, password, is_admin FROM users WHERE username=$1`,
+			[username]
+		);
+		const user = result.rows[0];
+		let token;
+		if (user) {
+			if (await bcrypt.compare(password, user.password)) {
+				user.is_admin
+					? (token = jwt.sign({ username, type: "admin" }, SECRET_KEY))
+					: (token = jwt.sign({ username }, SECRET_KEY));
+				return token;
+			}
+		}
+		throw new ExpressError("Incorrect username/password", 400);
+	}
+
 	static async register(data) {
-		data.password = await bcrypt.hash(data.password, 12);
+		data.password = await bcrypt.hash(data.password, BCRYPT_WORK_FACTOR);
 		const query = sqlForCreate("users", data);
 		const result = await db.query(query["queryString"], query["values"]);
 		delete result.rows[0].password;
