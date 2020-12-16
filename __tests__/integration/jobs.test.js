@@ -91,7 +91,6 @@ beforeAll(async () => {
 		password: "password1",
 	});
 	_token = loggedInUser.body.token;
-	console.log(_token);
 });
 
 beforeEach(async () => {
