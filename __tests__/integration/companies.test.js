@@ -87,11 +87,9 @@ beforeAll(async () => {
 		password: "password1",
 	});
 	_token = loggedInUser.body.token;
-	console.log(_token);
 });
 
 beforeEach(async () => {
-	console.log(_token);
 	await db.query(`DELETE FROM jobs`);
 	await db.query(`DELETE FROM companies`);
 	await db.query(

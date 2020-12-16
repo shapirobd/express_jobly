@@ -71,6 +71,29 @@ async function queryCompany(job) {
 	return queriedCompany.rows[0];
 }
 
+let _token;
+
+beforeAll(async () => {
+	await db.query(`DELETE FROM users`);
+	const registeredUser = await request(app).post("/users").send({
+		username: "username1",
+		password: "password1",
+		first_name: "Brian",
+		last_name: "Shapiro",
+		email: "brianshapiro@gmail.com",
+		photo_url: "photo url here",
+		is_admin: true,
+	});
+	const registerToken = registeredUser.body;
+	const loggedInUser = await request(app).post("/login").send({
+		_token: registerToken,
+		username: "username1",
+		password: "password1",
+	});
+	_token = loggedInUser.body.token;
+	console.log(_token);
+});
+
 beforeEach(async () => {
 	job1_update = {
 		title: "Internet Technology Representative",
@@ -113,7 +136,7 @@ beforeEach(async () => {
 
 describe("Test GET /jobs route", () => {
 	it("should return all jobs in order of date posted (no query params)", async () => {
-		const resp = await request(app).get("/jobs");
+		const resp = await request(app).get("/jobs").send({ _token });
 		expect(resp.status).toBe(200);
 		expect(resp.body).toEqual({
 			jobs: [
@@ -129,7 +152,9 @@ describe("Test GET /jobs route", () => {
 		});
 	});
 	it("should return all jobs with certain title (no min_salry/min_equity)", async () => {
-		const resp = await request(app).get(`/jobs?search=${job2.title}`);
+		const resp = await request(app)
+			.get(`/jobs?search=${job2.title}`)
+			.send({ _token });
 		expect(resp.body).toEqual({
 			jobs: [
 				{
@@ -140,9 +165,9 @@ describe("Test GET /jobs route", () => {
 		});
 	});
 	it("should return all jobs with more than min_salary (no min_equity or search)", async () => {
-		const resp = await request(app).get(
-			`/jobs?min_salary=${job2.salary - 0.01}`
-		);
+		const resp = await request(app)
+			.get(`/jobs?min_salary=${job2.salary - 0.01}`)
+			.send({ _token });
 		expect(resp.body).toEqual({
 			jobs: [
 				{
@@ -153,9 +178,9 @@ describe("Test GET /jobs route", () => {
 		});
 	});
 	it("should return all jobs with more than min_equity (no min_salary or search)", async () => {
-		const resp = await request(app).get(
-			`/jobs?min_equity=${job1.equity - 0.01}`
-		);
+		const resp = await request(app)
+			.get(`/jobs?min_equity=${job1.equity - 0.01}`)
+			.send({ _token });
 		expect(resp.body).toEqual({
 			jobs: [
 				{
@@ -170,9 +195,13 @@ describe("Test GET /jobs route", () => {
 		});
 	});
 	it("should return all jobs with min_salary and min_equity (no search)", async () => {
-		const resp = await request(app).get(
-			`/jobs?min_salary=${job1.salary - 0.01}&min_equity=${job2.equity - 0.01}`
-		);
+		const resp = await request(app)
+			.get(
+				`/jobs?min_salary=${job1.salary - 0.01}&min_equity=${
+					job2.equity - 0.01
+				}`
+			)
+			.send({ _token });
 		expect(resp.body).toEqual({
 			jobs: [
 				{
@@ -183,11 +212,13 @@ describe("Test GET /jobs route", () => {
 		});
 	});
 	it("should return all jobs with certain title and min_salary and min_equity", async () => {
-		const resp = await request(app).get(
-			`/jobs?search=${job1.title}&min_salary=${job1.salary - 0.01}&min_equity=${
-				job1.equity - 0.01
-			}`
-		);
+		const resp = await request(app)
+			.get(
+				`/jobs?search=${job1.title}&min_salary=${
+					job1.salary - 0.01
+				}&min_equity=${job1.equity - 0.01}`
+			)
+			.send({ _token });
 		expect(resp.body).toEqual({
 			jobs: [
 				{
@@ -201,16 +232,20 @@ describe("Test GET /jobs route", () => {
 
 describe("Test POST /jobs route", () => {
 	it("should create a new job", async () => {
-		const resp = await request(app).post(`/jobs`).send(newJob);
+		const resp = await request(app)
+			.post(`/jobs`)
+			.send({ ...newJob, _token });
 		expect(resp.status).toBe(201);
 		expect(resp.body).toEqual({ job: newJob });
 		const job = await queryJob(newJob);
 		const company = await queryCompany(newJob);
-		const getResp = await request(app).get(`/jobs/${job.id}`);
+		const getResp = await request(app).get(`/jobs/${job.id}`).send({ _token });
 		expect(getResp.body).toEqual({ job: { ...job, company } });
 	});
 	it("should return an error if schema not matched", async () => {
-		const resp = await request(app).post(`/jobs`).send(invalidJob);
+		const resp = await request(app)
+			.post(`/jobs`)
+			.send({ ...invalidJob, _token });
 		expect(resp.status).toBe(400);
 		expect(resp.body).toEqual({
 			status: 400,
@@ -227,12 +262,12 @@ describe("Test GET /jobs/:id route", () => {
 	it("should get info on job with given id", async () => {
 		const job = await queryJob(job1);
 		const company = await queryCompany(job1);
-		const resp = await request(app).get(`/jobs/${job.id}`);
+		const resp = await request(app).get(`/jobs/${job.id}`).send({ _token });
 		expect(resp.status).toBe(200);
 		expect(resp.body).toEqual({ job: { ...job, company } });
 	});
 	it("should return an error if job with given id can't be found", async () => {
-		const resp = await request(app).get(`/jobs/999999999`);
+		const resp = await request(app).get(`/jobs/999999999`).send({ _token });
 		expect(resp.status).toBe(404);
 		expect(resp.body).toEqual({ status: 404, message: "Job not found." });
 	});
@@ -242,30 +277,36 @@ describe("Test PATCH /jobs/:id route", () => {
 	it("should update a job", async () => {
 		const job = await queryJob(job1);
 		const company = await queryCompany(job1_update);
-		const resp = await request(app).patch(`/jobs/${job.id}`).send(job1_update);
+		const resp = await request(app)
+			.patch(`/jobs/${job.id}`)
+			.send({ ...job1_update, _token });
 		job1_update.date_posted = job.date_posted;
 		job1_update.id = job.id;
 		expect(resp.status).toBe(200);
 		expect(resp.body).toEqual({ job: job1_update });
-		const getResp = await request(app).get(`/jobs/${job.id}`);
+		const getResp = await request(app).get(`/jobs/${job.id}`).send({ _token });
 		delete job1_update.company_handle;
 		expect(getResp.body).toEqual({ job: { ...job1_update, company } });
 	});
 	it("should return an error if job with given id can't be found", async () => {
-		const resp = await request(app).patch(`/jobs/999999`).send(job1_update);
+		const resp = await request(app)
+			.patch(`/jobs/999999`)
+			.send({ ...job1_update, _token });
 		expect(resp.status).toBe(404);
 		expect(resp.body).toEqual({ status: 404, message: "Job not found." });
 	});
 	it("should return an error if request body doesn't match schema", async () => {
 		const job = await queryJob(job1);
 		const company = await queryCompany(job1);
-		const resp = await request(app).patch(`/jobs/${job.id}`).send(invalidJob);
+		const resp = await request(app)
+			.patch(`/jobs/${job.id}`)
+			.send({ ...invalidJob, _token });
 		expect(resp.status).toBe(400);
 		expect(resp.body).toEqual({
 			status: 400,
 			message: invalidSchemaErrors,
 		});
-		const getResp = await request(app).get(`/jobs/${job.id}`);
+		const getResp = await request(app).get(`/jobs/${job.id}`).send({ _token });
 		expect(getResp.body).toEqual({ job: { ...job, company } });
 	});
 });
@@ -274,14 +315,14 @@ describe("Test DELETE /jobs/:id route", () => {
 	it("should delete a job", async () => {
 		const job = await queryJob(job2);
 		const company = await queryCompany(job2);
-		const resp = await request(app).delete(`/jobs/${job.id}`);
+		const resp = await request(app).delete(`/jobs/${job.id}`).send({ _token });
 		expect(resp.status).toBe(200);
 		expect(resp.body).toEqual({ message: "Job deleted" });
-		const getResp = await request(app).get(`/jobs/${job.id}`);
+		const getResp = await request(app).get(`/jobs/${job.id}`).send({ _token });
 		expect(getResp.body).toEqual({ status: 404, message: "Job not found." });
 	});
 	it("should return an error if job with given id can't be found", async () => {
-		const resp = await request(app).delete(`/jobs/99999999`);
+		const resp = await request(app).delete(`/jobs/99999999`).send({ _token });
 		expect(resp.status).toBe(404);
 		expect(resp.body).toEqual({ status: 404, message: "Job not found." });
 	});
