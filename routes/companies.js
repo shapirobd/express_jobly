@@ -2,7 +2,8 @@ const express = require("express");
 const ExpressError = require("../helpers/expressError");
 const Company = require("../models/company");
 const jsonschema = require("jsonschema");
-const companySchema = require("../schemas/companySchema.json");
+const createCompanySchema = require("../schemas/createCompanySchema.json");
+const updateCompanySchema = require("../schemas/updateCompanySchema.json");
 const { ensureLoggedIn, ensureAdmin } = require("../middleware/auth");
 
 const router = new express.Router();
@@ -30,9 +31,9 @@ router.get("/", ensureLoggedIn, async (req, res, next) => {
 	}
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", ensureAdmin, async (req, res, next) => {
 	try {
-		const result = jsonschema.validate(req.body, companySchema);
+		const result = jsonschema.validate(req.body, createCompanySchema);
 		if (!result.valid) {
 			let errorsList = result.errors.map((error) => error.stack);
 			let error = new ExpressError(errorsList, 400);
@@ -54,9 +55,9 @@ router.get("/:handle", ensureLoggedIn, async (req, res, next) => {
 	}
 });
 
-router.patch("/:handle", async (req, res, next) => {
+router.patch("/:handle", ensureAdmin, async (req, res, next) => {
 	try {
-		const result = jsonschema.validate(req.body, companySchema);
+		const result = jsonschema.validate(req.body, updateCompanySchema);
 		if (!result.valid) {
 			let errorsList = result.errors.map((error) => error.stack);
 			let error = new ExpressError(errorsList, 400);
@@ -69,7 +70,7 @@ router.patch("/:handle", async (req, res, next) => {
 	}
 });
 
-router.delete("/:handle", async (req, res, next) => {
+router.delete("/:handle", ensureAdmin, async (req, res, next) => {
 	try {
 		await Company.delete(req.params.handle);
 		return res.json({ message: "Company deleted" });

@@ -31,9 +31,10 @@ function ensureSameUser(req, res, next) {
 }
 
 function ensureAdmin(req, res, next) {
-	if (!req.user || !req.user.is__admin) {
+	if (!req.user || !req.user.is_admin) {
 		return next(new ExpressError("Must be an admin to go here!", 401));
 	} else {
+		delete req.body._token;
 		return next();
 	}
 }

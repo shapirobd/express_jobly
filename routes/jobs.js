@@ -2,15 +2,16 @@ const express = require("express");
 const ExpressError = require("../helpers/expressError");
 const Job = require("../models/job");
 const jsonschema = require("jsonschema");
-const jobSchema = require("../schemas/jobSchema.json");
+const createJobSchema = require("../schemas/createJobSchema.json");
+const updateJobSchema = require("../schemas/updateJobSchema.json");
 const { ensureLoggedIn, ensureAdmin } = require("../middleware/auth");
 
 const router = new express.Router();
 
 // create & add a new job to the database
-router.post("/", async (req, res, next) => {
+router.post("/", ensureAdmin, async (req, res, next) => {
 	try {
-		const result = jsonschema.validate(req.body, jobSchema);
+		const result = jsonschema.validate(req.body, createJobSchema);
 		if (!result.valid) {
 			const errorList = result.errors.map((error) => error.stack);
 			const error = new ExpressError(errorList, 400);
@@ -46,9 +47,9 @@ router.get("/:id", ensureLoggedIn, async (req, res, next) => {
 	}
 });
 
-router.patch("/:id", async (req, res, next) => {
+router.patch("/:id", ensureAdmin, async (req, res, next) => {
 	try {
-		const result = jsonschema.validate(req.body, jobSchema);
+		const result = jsonschema.validate(req.body, updateJobSchema);
 		if (!result.valid) {
 			const errorList = result.errors.map((error) => error.stack);
 			const error = new ExpressError(errorList, 400);
@@ -61,7 +62,7 @@ router.patch("/:id", async (req, res, next) => {
 	}
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", ensureAdmin, async (req, res, next) => {
 	try {
 		await Job.delete(req.params.id);
 		return res.json({ message: "Job deleted" });

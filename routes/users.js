@@ -2,14 +2,15 @@ const express = require("express");
 const ExpressError = require("../helpers/expressError");
 const User = require("../models/user");
 const jsonschema = require("jsonschema");
-const userSchema = require("../schemas/userSchema.json");
+const registerUserSchema = require("../schemas/registerUserSchema.json");
+const updateUserSchema = require("../schemas/updateUserSchema.json");
 const { ensureSameUser } = require("../middleware/auth");
 
 const router = new express.Router();
 
 router.post("/", async (req, res, next) => {
 	try {
-		const result = jsonschema.validate(req.body, userSchema);
+		const result = jsonschema.validate(req.body, registerUserSchema);
 		if (!result.valid) {
 			const errorList = result.errors.map((error) => error.stack);
 			const error = new ExpressError(errorList, 400);
@@ -39,7 +40,7 @@ router.get("/:username", async (req, res, next) => {
 });
 router.patch("/:username", ensureSameUser, async (req, res, next) => {
 	try {
-		const result = jsonschema.validate(req.body, userSchema);
+		const result = jsonschema.validate(req.body, updateUserSchema);
 		if (!result.valid) {
 			const errorList = result.errors.map((error) => error.stack);
 			const error = new ExpressError(errorList, 400);
