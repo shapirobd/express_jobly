@@ -137,41 +137,38 @@ describe("Test GET /users/:username route", () => {
 	});
 });
 
-// describe("Test PATCH /users/:username route", () => {
-// 	it("should update a users", async () => {
-// 		const users = await queryusers(users1);
-// 		const user = await queryuser(users1_update);
-// 		const resp = await request(app)
-// 			.patch(`/users/${users.username}`)
-// 			.send(users1_update);
-// 		users1_update.date_posted = users.date_posted;
-// 		users1_update.username = users.username;
-// 		expect(resp.status).toBe(200);
-// 		expect(resp.body).toEqual({ users: users1_update });
-// 		const getResp = await request(app).get(`/users/${users.username}`);
-// 		delete users1_update.user_handle;
-// 		expect(getResp.body).toEqual({ users: { ...users1_update, user } });
-// 	});
-// 	it("should return an error if users with given username can't be found", async () => {
-// 		const resp = await request(app).patch(`/users/999999`).send(users1_update);
-// 		expect(resp.status).toBe(404);
-// 		expect(resp.body).toEqual({ status: 404, message: "users not found." });
-// 	});
-// 	it("should return an error if request body doesn't match schema", async () => {
-// 		const users = await queryusers(users1);
-// 		const user = await queryuser(users1);
-// 		const resp = await request(app)
-// 			.patch(`/users/${users.username}`)
-// 			.send(invalusernameusers);
-// 		expect(resp.status).toBe(400);
-// 		expect(resp.body).toEqual({
-// 			status: 400,
-// 			message: invalusernameSchemaErrors,
-// 		});
-// 		const getResp = await request(app).get(`/users/${users.username}`);
-// 		expect(getResp.body).toEqual({ users: { ...users, user } });
-// 	});
-// });
+describe("Test PATCH /users/:username route", () => {
+	it("should update a user", async () => {
+		const resp = await request(app)
+			.patch(`/users/${user1.username}`)
+			.send(user1_update);
+		delete user1_update.password;
+		expect(resp.status).toBe(200);
+		expect(resp.body).toEqual({ user: user1_update });
+		const getResp = await request(app).get(`/users/${user1_update.username}`);
+		expect(getResp.body).toEqual({ user: user1_update });
+	});
+	it("should return an error if user with given username can't be found", async () => {
+		const resp = await request(app)
+			.patch(`/users/INVALIDUSERNAME`)
+			.send(user1_update);
+		expect(resp.status).toBe(404);
+		expect(resp.body).toEqual({ status: 404, message: "User not found." });
+	});
+	it("should return an error if request body doesn't match schema", async () => {
+		const resp = await request(app)
+			.patch(`/users/${user1.username}`)
+			.send(invalidUser);
+		expect(resp.status).toBe(400);
+		expect(resp.body).toEqual({
+			status: 400,
+			message: invalidSchemaErrors,
+		});
+		const getResp = await request(app).get(`/users/${user1.username}`);
+		delete user1.password;
+		expect(getResp.body).toEqual({ user: user1 });
+	});
+});
 
 // describe("Test DELETE /users/:username route", () => {
 // 	it("should delete a users", async () => {
