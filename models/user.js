@@ -44,9 +44,12 @@ class User {
 		return result.rows[0];
 	}
 
-	// static async partialUpdate(username, data) {
-
-	// }
+	static async partialUpdate(username, data) {
+		const query = sqlForPartialUpdate("users", data, "username", username);
+		const result = await db.query(query["query"], query["values"]);
+		delete result.rows[0].password;
+		return result.rows[0];
+	}
 
 	// static async delete(username) {
 

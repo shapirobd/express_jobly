@@ -16,7 +16,7 @@ router.post("/", async (req, res, next) => {
 			return next(error);
 		}
 		const user = await User.register(req.body);
-		return res.status(201).json(user);
+		return res.status(201).json({ user: user });
 	} catch (e) {
 		return next(e);
 	}
@@ -24,7 +24,7 @@ router.post("/", async (req, res, next) => {
 router.get("/", async (req, res, next) => {
 	try {
 		const users = await User.getAll();
-		return res.json(users);
+		return res.json({ users: users });
 	} catch (e) {
 		return next(e);
 	}
@@ -32,7 +32,7 @@ router.get("/", async (req, res, next) => {
 router.get("/:username", async (req, res, next) => {
 	try {
 		const user = await User.getOne(req.params.username);
-		return res.json(user);
+		return res.json({ user: user });
 	} catch (e) {
 		return next(e);
 	}
@@ -46,6 +46,7 @@ router.patch("/:username", async (req, res, next) => {
 			return next(error);
 		}
 		const user = await User.partialUpdate(req.params.username, req.body);
+		return res.json({ user: user });
 	} catch (e) {
 		return next(e);
 	}
