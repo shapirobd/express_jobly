@@ -3,6 +3,9 @@ const sqlForGetOne = require("../helpers/getOne");
 const sqlForPartialUpdate = require("../helpers/partialUpdate");
 const db = require("../db");
 const ExpressError = require("../helpers/expressError");
+const bcrypt = require("bcrypt");
+
+const { BCRYPT_WORK_FACTOR } = "../config";
 
 class User {
 	constructor(
@@ -24,8 +27,10 @@ class User {
 	}
 
 	static async register(data) {
+		data.password = await bcrypt.hash(data.password, 12);
 		const query = sqlForCreate("users", data);
 		const result = await db.query(query["queryString"], query["values"]);
+		delete result.rows[0].password;
 		return result.rows[0];
 	}
 

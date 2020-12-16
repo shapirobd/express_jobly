@@ -8,7 +8,6 @@ const router = new express.Router();
 
 router.post("/", async (req, res, next) => {
 	try {
-		console.log("POST!!");
 		const result = jsonschema.validate(req.body, userSchema);
 		if (!result.valid) {
 			const errorList = result.errors.map((error) => error.stack);

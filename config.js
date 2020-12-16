@@ -13,7 +13,7 @@ const PORT = +process.env.PORT || 3000;
 // - else: 'jobly'
 
 let DB_URI;
-
+let BCRYPT_WORK_FACTOR = 12;
 if (process.env.NODE_ENV === "test") {
 	DB_URI = "jobly-test";
 } else {
@@ -22,6 +22,7 @@ if (process.env.NODE_ENV === "test") {
 
 module.exports = {
 	SECRET_KEY,
+	BCRYPT_WORK_FACTOR,
 	PORT,
 	DB_URI,
 };
