@@ -67,7 +67,31 @@ function formatDates(jobs) {
 	return jobs;
 }
 
+let _token;
+
+beforeAll(async () => {
+	await db.query(`DELETE FROM users`);
+	const registeredUser = await request(app).post("/users").send({
+		username: "username1",
+		password: "password1",
+		first_name: "Brian",
+		last_name: "Shapiro",
+		email: "brianshapiro@gmail.com",
+		photo_url: "photo url here",
+		is_admin: true,
+	});
+	const registerToken = registeredUser.body;
+	const loggedInUser = await request(app).post("/login").send({
+		_token: registerToken,
+		username: "username1",
+		password: "password1",
+	});
+	_token = loggedInUser.body.token;
+	console.log(_token);
+});
+
 beforeEach(async () => {
+	console.log(_token);
 	await db.query(`DELETE FROM jobs`);
 	await db.query(`DELETE FROM companies`);
 	await db.query(
@@ -102,7 +126,7 @@ beforeEach(async () => {
 
 describe("Test GET /companies route", () => {
 	it("should return all companies (no query params)", async () => {
-		const resp = await request(app).get("/companies");
+		const resp = await request(app).get("/companies").send({ _token });
 		expect(resp.status).toBe(200);
 		expect(resp.body).toEqual({
 			companies: [
@@ -118,7 +142,9 @@ describe("Test GET /companies route", () => {
 		});
 	});
 	it("should return all companies with certain name/handle (no min/max_employee)", async () => {
-		const resp = await request(app).get(`/companies?search=${company1.handle}`);
+		const resp = await request(app)
+			.get(`/companies?search=${company1.handle}`)
+			.send({ _token });
 		expect(resp.body).toEqual({
 			companies: [
 				{
@@ -129,9 +155,9 @@ describe("Test GET /companies route", () => {
 		});
 	});
 	it("should return all companies with more than min_employee amount of employees (no max_employee or search)", async () => {
-		const resp = await request(app).get(
-			`/companies?min_employees=${company2.num_employees - 1}`
-		);
+		const resp = await request(app)
+			.get(`/companies?min_employees=${company2.num_employees - 1}`)
+			.send({ _token });
 		expect(resp.body).toEqual({
 			companies: [
 				{
@@ -142,9 +168,9 @@ describe("Test GET /companies route", () => {
 		});
 	});
 	it("should return all companies with less than max_employee amount of employees (no min_employee or search)", async () => {
-		const resp = await request(app).get(
-			`/companies?max_employees=${company1.num_employees + 1}`
-		);
+		const resp = await request(app)
+			.get(`/companies?max_employees=${company1.num_employees + 1}`)
+			.send({ _token });
 		expect(resp.body).toEqual({
 			companies: [
 				{
@@ -155,13 +181,13 @@ describe("Test GET /companies route", () => {
 		});
 	});
 	it("should return all companies with between min & max_employees amount of employees(no search)", async () => {
-		console.log(company1.num_employees);
-		console.log(company2.num_employees);
-		const resp = await request(app).get(
-			`/companies?min_employees=${company1.num_employees - 1}&max_employees=${
-				company2.num_employees + 1
-			}`
-		);
+		const resp = await request(app)
+			.get(
+				`/companies?min_employees=${company1.num_employees - 1}&max_employees=${
+					company2.num_employees + 1
+				}`
+			)
+			.send({ _token });
 
 		expect(resp.body).toEqual({
 			companies: [
@@ -177,11 +203,13 @@ describe("Test GET /companies route", () => {
 		});
 	});
 	it("should return all companies with certain name/handle and range of amount of employees", async () => {
-		const resp = await request(app).get(
-			`/companies?search=${company1.name}&min_employees=${
-				company1.num_employees - 1
-			}&max_employees=${company2.num_employees + 1}`
-		);
+		const resp = await request(app)
+			.get(
+				`/companies?search=${company1.name}&min_employees=${
+					company1.num_employees - 1
+				}&max_employees=${company2.num_employees + 1}`
+			)
+			.send({ _token });
 		expect(resp.body).toEqual({
 			companies: [
 				{
@@ -195,24 +223,30 @@ describe("Test GET /companies route", () => {
 
 describe("Test POST /companies route", () => {
 	it("should create a new company", async () => {
-		const resp = await request(app).post(`/companies`).send(newCompany);
+		const resp = await request(app)
+			.post(`/companies`)
+			.send({ ...newCompany, _token });
 		expect(resp.status).toBe(201);
 		expect(resp.body).toEqual({ company: newCompany });
-		const getResp = await request(app).get(`/companies/${newCompany.handle}`);
+		const getResp = await request(app)
+			.get(`/companies/${newCompany.handle}`)
+			.send({ _token });
 		expect(getResp.body).toEqual({
 			company: { ...newCompany, jobs: [] },
 		});
 	});
 	it("should return an error if schema not matched", async () => {
-		const resp = await request(app).post(`/companies`).send(invalidCompany);
+		const resp = await request(app)
+			.post(`/companies`)
+			.send({ ...invalidCompany, _token });
 		expect(resp.status).toBe(400);
 		expect(resp.body).toEqual({
 			status: 400,
 			message: invalidSchemaErrors,
 		});
-		const getResp = await request(app).get(
-			`/companies/${invalidCompany.handle}`
-		);
+		const getResp = await request(app)
+			.get(`/companies/${invalidCompany.handle}`)
+			.send({ _token });
 		expect(getResp.body).toEqual({
 			status: 404,
 			message: "Company not found.",
@@ -222,9 +256,13 @@ describe("Test POST /companies route", () => {
 
 describe("Test GET /companies/:handle route", () => {
 	it("should get info on company with given handle", async () => {
-		const resp = await request(app).get(`/companies/${company1.handle}`);
+		const resp = await request(app)
+			.get(`/companies/${company1.handle}`)
+			.send({ _token });
 		expect(resp.status).toBe(200);
-		const getResp = await request(app).get(`/companies/${company1.handle}`);
+		const getResp = await request(app)
+			.get(`/companies/${company1.handle}`)
+			.send({ _token });
 		const queriedJobs = await db.query(
 			`SELECT * FROM jobs WHERE company_handle='${company1.handle}'`
 		);
@@ -234,9 +272,11 @@ describe("Test GET /companies/:handle route", () => {
 		});
 	});
 	it("should return an error if company with given handle can't be found", async () => {
-		const resp = await request(app).get(`/companies/ABCDEFG`);
+		const resp = await request(app).get(`/companies/ABCDEFG`).send({ _token });
 		expect(resp.status).toBe(404);
-		const getResp = await request(app).get(`/companies/ABCDEF`);
+		const getResp = await request(app)
+			.get(`/companies/ABCDEF`)
+			.send({ _token });
 		expect(getResp.body).toEqual({
 			status: 404,
 			message: "Company not found.",
@@ -248,10 +288,12 @@ describe("Test PATCH /companies/:handle route", () => {
 	it("should update a company", async () => {
 		const resp = await request(app)
 			.patch(`/companies/${company1.handle}`)
-			.send(company1_update);
+			.send({ ...company1_update, _token });
 		expect(resp.status).toBe(200);
 		expect(resp.body).toEqual({ company: company1_update });
-		const getResp = await request(app).get(`/companies/${company1.handle}`);
+		const getResp = await request(app)
+			.get(`/companies/${company1.handle}`)
+			.send({ _token });
 		const queriedJobs = await db.query(
 			`SELECT * FROM jobs WHERE company_handle='${company1.handle}'`
 		);
@@ -263,20 +305,22 @@ describe("Test PATCH /companies/:handle route", () => {
 	it("should return an error if company with given handle can't be found", async () => {
 		const resp = await request(app)
 			.patch(`/companies/XYZ321`)
-			.send(company1_update);
+			.send({ ...company1_update, _token });
 		expect(resp.status).toBe(404);
 		expect(resp.body).toEqual({ status: 404, message: "Company not found." });
 	});
 	it("should return an error if request body doesn't match schema", async () => {
 		const resp = await request(app)
 			.patch(`/companies/${company1.handle}`)
-			.send(invalidCompany);
+			.send({ ...invalidCompany, _token });
 		expect(resp.status).toBe(400);
 		expect(resp.body).toEqual({
 			status: 400,
 			message: invalidSchemaErrors,
 		});
-		const getResp = await request(app).get(`/companies/${company1.handle}`);
+		const getResp = await request(app)
+			.get(`/companies/${company1.handle}`)
+			.send({ _token });
 		const queriedJobs = await db.query(
 			`SELECT * FROM jobs WHERE company_handle='${company1.handle}'`
 		);
@@ -289,17 +333,23 @@ describe("Test PATCH /companies/:handle route", () => {
 
 describe("Test DELETE /companies/:handle route", () => {
 	it("should delete a company", async () => {
-		const resp = await request(app).delete(`/companies/${company2.handle}`);
+		const resp = await request(app)
+			.delete(`/companies/${company2.handle}`)
+			.send({ _token });
 		expect(resp.status).toBe(200);
 		expect(resp.body).toEqual({ message: "Company deleted" });
-		const getResp = await request(app).get(`/companies/${company2.handle}`);
+		const getResp = await request(app)
+			.get(`/companies/${company2.handle}`)
+			.send({ _token });
 		expect(getResp.body).toEqual({
 			status: 404,
 			message: "Company not found.",
 		});
 	});
 	it("should return an error if company with given handle can't be found", async () => {
-		const resp = await request(app).delete(`/companies/MYNAMEISBRIAN`);
+		const resp = await request(app)
+			.delete(`/companies/MYNAMEISBRIAN`)
+			.send({ _token });
 		expect(resp.status).toBe(404);
 		expect(resp.body).toEqual({ status: 404, message: "Company not found." });
 	});
