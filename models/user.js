@@ -31,7 +31,7 @@ class User {
 
 	static async getAll() {
 		const result = await db.query(
-			`SELECT username, first_name, last_name email FROM users`
+			`SELECT username, first_name, last_name, email FROM users`
 		);
 		return result.rows;
 	}
@@ -42,6 +42,7 @@ class User {
 		if (result.rows.length === 0) {
 			throw new ExpressError("User not found.", 404);
 		}
+		delete result.rows[0].password;
 		return result.rows[0];
 	}
 
