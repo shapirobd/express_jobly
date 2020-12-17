@@ -55,6 +55,7 @@ router.get("/:username", async (req, res, next) => {
 // if username not found, returns 404 error message
 router.patch("/:username", ensureSameUser, async (req, res, next) => {
 	try {
+		console.log(req.body);
 		const result = jsonschema.validate(req.body, updateUserSchema);
 		if (!result.valid) {
 			const errorList = result.errors.map((error) => error.stack);

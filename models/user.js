@@ -85,7 +85,7 @@ class User {
 	// returns an object containing the user's details (except for password) - {username: username, etc.}
 	static async update(username, data) {
 		const query = sqlForPartialUpdate("users", data, "username", username);
-		const results = await db.query(query["query"], query["values"]);
+		const results = await db.query(query["queryString"], query["values"]);
 		checkForNoResults("User", results);
 		delete results.rows[0].password;
 		return results.rows[0];
