@@ -1,3 +1,6 @@
+// generates a SQL query to create & insert an item into the database.
+// table: the table to insert into
+// items: an object containing column names and values that will be used to create the new item
 function sqlForCreate(table, items) {
 	let idx = 1;
 	let values = [];

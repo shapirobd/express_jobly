@@ -21,7 +21,7 @@ class Company {
 	// uses sqlForGetAllCompanies to generate the correct select query based on search, min_employees and max_employees
 	// returns an array of company objects - [{company1}, {company2}, etc.]
 	static async getAll(filters) {
-		const query = sqlForGetAllCompanies("companies", filters);
+		const query = sqlForGetAllCompanies(filters);
 		const results = await db.query(query["queryString"], query["values"]);
 		return results.rows;
 	}

@@ -13,7 +13,7 @@ describe("partialUpdate()", () => {
 		let id = "GOOG";
 		let queryValues = sqlForPartialUpdate(table, items, key, id);
 		expect(queryValues).toEqual(expect.any(Object));
-		expect(queryValues.query).toEqual(
+		expect(queryValues.queryString).toEqual(
 			"UPDATE companies SET num_employees=$1 WHERE handle=$2 RETURNING *"
 		);
 		expect(queryValues.values).toEqual(["99999", "GOOG"]);

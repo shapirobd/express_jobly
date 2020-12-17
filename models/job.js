@@ -29,7 +29,7 @@ class Job {
 	// uses sqlForGetAllJobs to generate the correct select query based on search, min_salary and min_equity
 	// returns an array of job objects - [{job1}, {job2}, etc.]
 	static async getAll(filters) {
-		const query = sqlForGetAllJobs("jobs", filters);
+		const query = sqlForGetAllJobs(filters);
 		const results = await db.query(query["queryString"], query["values"]);
 		return results.rows;
 	}
