@@ -23,11 +23,11 @@ function sqlForPartialUpdate(table, items, key, id) {
 	idx = loadColumns(items, columns, idx);
 	// build query
 	let cols = columns.join(", ");
-	let query = `UPDATE ${table} SET ${cols} WHERE ${key}=$${idx} RETURNING *`;
+	let queryString = `UPDATE ${table} SET ${cols} WHERE ${key}=$${idx} RETURNING *`;
 	let values = Object.values(items);
 	values.push(id);
 
-	return { query, values };
+	return { queryString, values };
 }
 
 function removeUnderscoreKeys(items) {

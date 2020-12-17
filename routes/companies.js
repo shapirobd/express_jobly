@@ -31,6 +31,9 @@ router.get("/", ensureLoggedIn, async (req, res, next) => {
 	}
 });
 
+// creates a new company
+// validates req.body based on JSON schema from createCompanySchema.json
+// returns the details of the new company in JSON format - {company: {companyDetails}}
 router.post("/", ensureAdmin, async (req, res, next) => {
 	try {
 		const result = jsonschema.validate(req.body, createCompanySchema);
@@ -46,6 +49,9 @@ router.post("/", ensureAdmin, async (req, res, next) => {
 	}
 });
 
+// Retrieves a company - finds the company based on its handle
+// returns the company & associated jobs in JSON format - {user: {userDetails..., jobs: [allJobs]}}
+// if handle not found, returns 404 error message
 router.get("/:handle", ensureLoggedIn, async (req, res, next) => {
 	try {
 		const company = await Company.getByHandle(req.params.handle);
@@ -55,6 +61,10 @@ router.get("/:handle", ensureLoggedIn, async (req, res, next) => {
 	}
 });
 
+// Updates a company - finds the user based on its handle
+// validates req.body based on JSON schema from updateCompanySchema.json
+// returns the newly updated company in JSON format - {company: {companyDetails}}
+// if handle not found, returns 404 error message
 router.patch("/:handle", ensureAdmin, async (req, res, next) => {
 	try {
 		const result = jsonschema.validate(req.body, updateCompanySchema);
@@ -63,13 +73,16 @@ router.patch("/:handle", ensureAdmin, async (req, res, next) => {
 			let error = new ExpressError(errorsList, 400);
 			return next(error);
 		}
-		const company = await Company.updateOne(req.body, req.params.handle);
+		const company = await Company.update(req.params.handle, req.body);
 		return res.json({ company: company });
 	} catch (e) {
 		return next(e);
 	}
 });
 
+// Deletes a company - finds the company based on its handle
+// returns a deleted message in JSON format - {message: "Company deleted"}
+// if handle not found, returns 404 error message
 router.delete("/:handle", ensureAdmin, async (req, res, next) => {
 	try {
 		await Company.delete(req.params.handle);

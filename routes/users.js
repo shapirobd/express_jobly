@@ -8,6 +8,9 @@ const { ensureSameUser } = require("../middleware/auth");
 
 const router = new express.Router();
 
+// creates a new user
+// validates req.body based on JSON schema from registerUserSchema.json
+// returns the token associated with the new user & their privileges in JSON format - {token: token}
 router.post("/", async (req, res, next) => {
 	try {
 		const result = jsonschema.validate(req.body, registerUserSchema);
@@ -22,6 +25,9 @@ router.post("/", async (req, res, next) => {
 		return next(e);
 	}
 });
+
+// Gets all users from the database
+// returns the list of users  & their username, first_name, last_name and email in JSON format - {users: [users]}
 router.get("/", async (req, res, next) => {
 	try {
 		const users = await User.getAll();
@@ -30,14 +36,23 @@ router.get("/", async (req, res, next) => {
 		return next(e);
 	}
 });
+
+// Retrieves a user - finds the user based on their username
+// returns the user  & all their details (aside from password) in JSON format - {user: {userDetails}}
+// if username not found, returns 404 error message
 router.get("/:username", async (req, res, next) => {
 	try {
-		const user = await User.getOne(req.params.username);
+		const user = await User.getByUsername(req.params.username);
 		return res.json({ user: user });
 	} catch (e) {
 		return next(e);
 	}
 });
+
+// Updates a user - finds the user based on their username
+// validates req.body based on JSON schema from updateUserSchema.json
+// returns the newly updated user & all their details (aside from password) in JSON format - {user: {userDetails}}
+// if username not found, returns 404 error message
 router.patch("/:username", ensureSameUser, async (req, res, next) => {
 	try {
 		const result = jsonschema.validate(req.body, updateUserSchema);
@@ -46,12 +61,16 @@ router.patch("/:username", ensureSameUser, async (req, res, next) => {
 			const error = new ExpressError(errorList, 400);
 			return next(error);
 		}
-		const user = await User.partialUpdate(req.params.username, req.body);
+		const user = await User.update(req.params.username, req.body);
 		return res.json({ user: user });
 	} catch (e) {
 		return next(e);
 	}
 });
+
+// Deletes a user - finds the user based on their username
+// returns a deleted message in JSON format - {message: "User deleted"}
+// if username not found, returns 404 error message
 router.delete("/:username", ensureSameUser, async (req, res, next) => {
 	try {
 		await User.delete(req.params.username);

@@ -4,4 +4,22 @@ function sqlForGetCompanyJobs(handle) {
 	return { queryString, values };
 }
 
-module.exports = sqlForGetCompanyJobs;
+async function getCompanyJobs(handle) {
+	const jobsQuery = sqlForGetCompanyJobs(handle);
+	const jobsResults = await db.query(
+		jobsQuery["queryString"],
+		jobsQuery["values"]
+	);
+	return jobsResults.rows;
+}
+
+async function getJobCompany(id) {
+	const companyQuery = sqlForGetOne("companies", "handle", job.company_handle);
+	const companyResults = await db.query(
+		companyQuery["queryString"],
+		companyQuery["values"]
+	);
+	return companyResults.rows[0];
+}
+
+module.exports = { getCompanyJobs, getJobCompany };
