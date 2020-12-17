@@ -1,4 +1,5 @@
 const db = require("../db");
+const sqlForGetOne = require("./getOne");
 
 function sqlForGetCompanyJobs(handle) {
 	const queryString = `SELECT j.id, j.title, j.salary, j.equity, j.company_handle, j.date_posted FROM jobs AS j LEFT JOIN companies AS c ON j.company_handle=c.handle WHERE j.company_handle=$1`;

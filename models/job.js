@@ -67,8 +67,9 @@ class Job {
 		const results = await db.query(`DELETE FROM jobs WHERE id=$1 RETURNING *`, [
 			id,
 		]);
+		console.log(results.rows[0]);
 		checkForNoResults("Job", results);
-		return result.rows[0];
+		return results.rows[0];
 	}
 }
 

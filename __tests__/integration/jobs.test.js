@@ -313,7 +313,7 @@ describe("Test PATCH /jobs/:id route", () => {
 describe("Test DELETE /jobs/:id route", () => {
 	it("should delete a job", async () => {
 		const job = await queryJob(job2);
-		const company = await queryCompany(job2);
+		console.log(job);
 		const resp = await request(app).delete(`/jobs/${job.id}`).send({ _token });
 		expect(resp.status).toBe(200);
 		expect(resp.body).toEqual({ message: "Job deleted" });
