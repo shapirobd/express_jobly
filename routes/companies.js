@@ -16,15 +16,12 @@ const router = new express.Router();
 // If the min_employees parameter is greater than the max_employees parameter, respond with a 400 status and a message notifying that the parameters are incorrect.
 router.get("/", ensureLoggedIn, async (req, res, next) => {
 	try {
-		const search = req.query.search;
-		const min_employees = parseInt(req.query.min_employees);
-		const max_employees = parseInt(req.query.max_employees);
-		const companies = await Company.getAll(
-			search,
-			min_employees,
-			max_employees
-		);
-
+		const filters = {
+			search: req.query.search,
+			min_employees: parseInt(req.query.min_employees),
+			max_employees: parseInt(req.query.max_employees),
+		};
+		const companies = await Company.getAll(filters);
 		return res.json({ companies: companies });
 	} catch (e) {
 		return next(e);

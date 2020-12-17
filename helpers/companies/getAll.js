@@ -10,7 +10,7 @@
 
 function sqlForGetAllCompanies(table, filters) {
 	// build query
-	checkMinLessThanMax(filters.min, filters.max);
+	checkMinLessThanMax(filters.min_employees, filters.max_employees);
 	let idx = 1;
 	let nameQuery = generateNameQuery(filters, idx);
 	if (nameQuery !== "") {
@@ -18,14 +18,13 @@ function sqlForGetAllCompanies(table, filters) {
 	}
 	let employeesQuery = generateEmployeeQuery(filters, idx, nameQuery);
 	let queryString = `SELECT handle, name FROM ${table} ${nameQuery} ${employeesQuery}`;
-
 	removeUndefinedFilters(filters);
 	let values = Object.values(filters);
 	return { queryString, values };
 }
 
 function checkMinLessThanMax(min, max) {
-	if (min_employees > max_employees) {
+	if (min > max) {
 		throw new ExpressError(
 			"min_employees must be less than max_employees",
 			400
@@ -50,18 +49,18 @@ function generateNameQuery(filters, idx) {
 
 function handleMinMax(filters, idx) {
 	if (
-		Number.isInteger(parseInt(filters.min)) &&
-		Number.isInteger(parseInt(filters.max))
+		Number.isInteger(parseInt(filters.min_employees)) &&
+		Number.isInteger(parseInt(filters.max_employees))
 	) {
 		return generateMinMaxQuery(idx);
 	} else if (
-		Number.isInteger(parseInt(filters.min)) &&
-		!Number.isInteger(parseInt(filters.max))
+		Number.isInteger(parseInt(filters.min_employees)) &&
+		!Number.isInteger(parseInt(filters.max_employees))
 	) {
 		return generateMinQuery(idx);
 	} else if (
-		!Number.isInteger(parseInt(filters.min)) &&
-		Number.isInteger(parseInt(filters.max))
+		!Number.isInteger(parseInt(filters.min_employees)) &&
+		Number.isInteger(parseInt(filters.max_employees))
 	) {
 		return generateMaxQuery(idx);
 	}

@@ -80,7 +80,7 @@ beforeAll(async () => {
 		photo_url: "photo url here",
 		is_admin: true,
 	});
-	const registerToken = registeredUser.body;
+	const registerToken = registeredUser.body.token;
 	const loggedInUser = await request(app).post("/login").send({
 		_token: registerToken,
 		username: "username1",

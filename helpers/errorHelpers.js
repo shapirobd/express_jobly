@@ -1,3 +1,5 @@
+const ExpressError = require("./expressError");
+
 function checkForNoResults(itemName, results) {
 	if (results.rows.length === 0) {
 		throw new ExpressError(`${itemName} not found.`, 404);
