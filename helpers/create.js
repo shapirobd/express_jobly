@@ -14,11 +14,7 @@ function sqlForCreate(table, items) {
 	}
 	const cols = columns.join(", ");
 	const idxs = indecies.join(", ");
-	const queryString = `
-    INSERT INTO ${table} (${cols})
-    VALUES (${idxs})
-    RETURNING ${cols}
-    `;
+	const queryString = `INSERT INTO ${table} (${cols}) VALUES (${idxs}) RETURNING ${cols}`;
 	return { queryString, values };
 }
 

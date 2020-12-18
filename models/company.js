@@ -35,7 +35,7 @@ class Company {
 	}
 
 	// Gets a company from the database by its handle
-	// uses sqlForGetOne to generate the correct select query based on the table name, key of "handle" and handle itself
+	// uses sqlForGetCompany to generate the select query
 	// returns an object containing the company's details and associated jobs - {...companyData, jobs: [{job1}, {job2}, etc.]}
 	static async getByHandle(handle) {
 		const query = sqlForGetCompany(handle);

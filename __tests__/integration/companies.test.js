@@ -4,6 +4,8 @@ const request = require("supertest");
 const app = require("../../app");
 const db = require("../../db");
 
+let _token;
+
 const company1 = {
 	handle: "GOOG",
 	name: "Google",
@@ -69,8 +71,6 @@ function formatDates(jobs) {
 	}
 	return jobs;
 }
-
-let _token;
 
 beforeAll(async () => {
 	await db.query(`DELETE FROM users`);

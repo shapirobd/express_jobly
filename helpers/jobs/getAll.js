@@ -27,7 +27,7 @@ function sqlForGetAllJobs(filters) {
 		titleQuery,
 		minSalaryQuery
 	);
-	let queryString = `SELECT title, company_handle FROM jobs ${titleQuery} ${minSalaryQuery} ${minEquityQuery} ORDER BY date_posted DESC`;
+	let queryString = `SELECT title, company_handle FROM jobs ${titleQuery}${minSalaryQuery}${minEquityQuery}ORDER BY date_posted DESC`;
 	removeUndefinedFilters(filters);
 	let values = Object.values(filters);
 	return { queryString, values };
@@ -55,7 +55,7 @@ function removeUndefinedFilters(filters) {
 // if filters.search not defined: makes the substring = ""
 function generateTitleQuery(filters, idx) {
 	if (filters.search) {
-		return `WHERE title ilike $${idx}`;
+		return `WHERE title ilike $${idx} `;
 	}
 	return "";
 }
@@ -81,9 +81,10 @@ function handleMinEquity(filters, idx) {
 // modifies the minSalary query substring based on what other filters were passed into the route
 function generateMinSalaryQuery(filters, idx, titleQuery) {
 	let minSalaryQuery = handleMinSalary(filters, idx);
-	console.log("****", minSalaryQuery);
 	if (titleQuery === "" && minSalaryQuery !== "") {
-		minSalaryQuery = "WHERE" + minSalaryQuery.slice(3);
+		minSalaryQuery = "WHERE" + minSalaryQuery.slice(4);
+	} else if (titleQuery !== "") {
+		minSalaryQuery = minSalaryQuery.slice(1);
 	}
 	return minSalaryQuery;
 }
@@ -92,19 +93,21 @@ function generateMinSalaryQuery(filters, idx, titleQuery) {
 function generateMinEquityQuery(filters, idx, titleQuery, minSalaryQuery) {
 	let minEquityQuery = handleMinEquity(filters, idx);
 	if (titleQuery === "" && minSalaryQuery === "" && minEquityQuery !== "") {
-		minEquityQuery = "WHERE" + minEquityQuery.slice(3);
+		minEquityQuery = "WHERE" + minEquityQuery.slice(4);
+	} else if (titleQuery !== "" || minSalaryQuery !== "") {
+		minEquityQuery = minEquityQuery.slice(1);
 	}
 	return minEquityQuery;
 }
 
 // generates substring to be added to the queryString to filter jobs with salary > min_salary
 function minSalarySubstring(idx) {
-	return `AND salary > $${idx}`;
+	return ` AND salary > $${idx} `;
 }
 
 // generates substring to be added to the queryString to filter jobs with equity > min_equity
 function minEquitySubstring(idx) {
-	return `AND equity > $${idx}`;
+	return ` AND equity > $${idx} `;
 }
 
 module.exports = sqlForGetAllJobs;

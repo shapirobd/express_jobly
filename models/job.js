@@ -43,7 +43,7 @@ class Job {
 	}
 
 	// Gets a job from the database by its id
-	// uses sqlForGetOne to generate the correct select query based on the table name, key of "id" and id itself
+	// uses sqlForGetJob to generate the select query
 	// returns an object containing the job's details and associated company - {...jobData, company: {companyData}}
 	static async getById(id) {
 		const query = sqlForGetJob(id);

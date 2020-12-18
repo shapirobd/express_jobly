@@ -14,10 +14,8 @@ function sqlForGetJob(id) {
 
 //u.username, u.first_name, u.last_name, u.email, u.photo_url, u.is_admin, a.job_id, a.state, a.created_at
 function sqlForGetUser(username) {
-	console.log(username);
 	const queryString = `SELECT u.*, json_agg(a.*) AS applications FROM applications AS a LEFT JOIN users AS u ON a.username = u.username WHERE a.username=$1 GROUP BY u.username`;
 	const values = [username];
-	console.log(values);
 	return { queryString, values };
 }
 
@@ -26,8 +24,6 @@ function sqlForMatchJobs(username, technologies) {
 	const values = [username, technologies];
 	return { queryString, values };
 }
-
-// `SELECT json_agg(j.*) AS jobs FROM jobs AS j LEFT JOIN technologies AS t ON j.id=t.job_id LEFT JOIN users AS u ON u.username=t.username WHERE t.username=$1 AND t.technology= ANY($2) GROUP BY j.id`;
 
 module.exports = {
 	sqlForGetCompany,

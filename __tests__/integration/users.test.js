@@ -157,10 +157,6 @@ describe("Test POST /users route", () => {
 		const resp = await request(app).post(`/users`).send(newUser);
 		expect(resp.status).toBe(200);
 		expect(resp.body).toEqual({ token: expect.any(String) });
-		const emery = await db.query(
-			`SELECT u.*, json_agg(a.*) AS applications FROM applications AS a LEFT JOIN users AS u ON a.username = u.username WHERE a.username=$1 GROUP BY u.username`,
-			["emeryjohnson"]
-		);
 	});
 	it("should return an error if schema not matched", async () => {
 		const resp = await request(app)
@@ -232,7 +228,9 @@ describe("Test PATCH /users/:username route", () => {
 		const getResp = await request(app).get(`/users/${user1.username}`);
 		delete user1.password;
 		app1.created_at = getResp.body.user.applications[0].created_at;
-		expect(getResp.body).toEqual({ user: { ...user1, applications: [app1] } });
+		expect(getResp.body).toEqual({
+			user: { ...user1, applications: [app1] },
+		});
 	});
 });
 

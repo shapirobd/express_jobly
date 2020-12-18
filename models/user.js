@@ -76,15 +76,12 @@ class User {
 	}
 
 	// Gets a user from the database by its username
-	// uses sqlForGetOne to generate the correct select query based on the table name, key of "username" and username itself
+	// uses sqlForGetUser to generate the select query
 	// returns an object containing the users's details (excpet for password) - {username: username, etc.}
 	static async getByUsername(username) {
-		console.log(username);
 		const query = sqlForGetUser(username);
-		console.log(query);
 		const results = await db.query(query["queryString"], query["values"]);
 		checkForNoResults("User", results);
-		console.log(results.rows);
 		delete results.rows[0].password;
 		return results.rows[0];
 	}
