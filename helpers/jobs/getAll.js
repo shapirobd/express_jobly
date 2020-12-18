@@ -13,20 +13,23 @@
 function sqlForGetAllJobs(filters) {
 	let idx = 1;
 	let titleQuery = generateTitleQuery(filters, idx);
-	console.log("TITLE QUERY:", titleQuery);
 	idx = incrementIfNotEmpty(titleQuery, idx);
 	if (idx === 2) {
 		filters.search = `%${filters.search}%`;
 	}
 	let minSalaryQuery = generateMinSalaryQuery(filters, idx, titleQuery);
 	idx = incrementIfNotEmpty(minSalaryQuery, idx);
-
 	let minEquityQuery = generateMinEquityQuery(
 		filters,
 		idx,
 		titleQuery,
 		minSalaryQuery
 	);
+	return completeQuery(titleQuery, minSalaryQuery, minEquityQuery, filters);
+}
+
+// plugs all query substrings into the main query string and returns object of main query string and values used for the query
+function completeQuery(titleQuery, minSalaryQuery, minEquityQuery, filters) {
 	let queryString = `SELECT title, company_handle FROM jobs ${titleQuery}${minSalaryQuery}${minEquityQuery}ORDER BY date_posted DESC`;
 	removeUndefinedFilters(filters);
 	let values = Object.values(filters);
