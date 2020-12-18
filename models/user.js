@@ -1,5 +1,5 @@
 const sqlForCreate = require("../helpers/create");
-const { sqlForGetUser } = require("../helpers/joinHelpers");
+const { sqlForGetUser, sqlForMatchJobs } = require("../helpers/joinHelpers");
 const sqlForPartialUpdate = require("../helpers/partialUpdate");
 const db = require("../db");
 const ExpressError = require("../helpers/expressError");
@@ -67,6 +67,12 @@ class User {
 			`SELECT username, first_name, last_name, email FROM users`
 		);
 		return results.rows;
+	}
+
+	static async matchJobs(username, technologies) {
+		const query = sqlForMatchJobs(username, technologies);
+		const results = await db.query(query["queryString"], query["values"]);
+		return results.rows[0];
 	}
 
 	// Gets a user from the database by its username

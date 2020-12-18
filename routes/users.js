@@ -37,6 +37,19 @@ router.get("/", async (req, res, next) => {
 	}
 });
 
+// req.body.technologies is an array of technologies
+router.get("/:username/jobs", async (req, res, next) => {
+	try {
+		const jobs = await User.matchJobs(
+			req.params.username,
+			req.body.technologies
+		);
+		return res.json(jobs);
+	} catch (e) {
+		return next(e);
+	}
+});
+
 // Retrieves a user - finds the user based on their username
 // returns the user  & all their details (aside from password) in JSON format - {user: {userDetails}}
 // if username not found, returns 404 error message

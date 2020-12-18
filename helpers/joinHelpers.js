@@ -21,8 +21,17 @@ function sqlForGetUser(username) {
 	return { queryString, values };
 }
 
+function sqlForMatchJobs(username, technologies) {
+	const queryString = `SELECT json_agg(j.*) AS jobs FROM jobs AS j LEFT JOIN technologies AS t ON j.id=t.job_id LEFT JOIN users AS u ON u.username=t.username WHERE t.username=$1 AND t.technology= ANY($2)`;
+	const values = [username, technologies];
+	return { queryString, values };
+}
+
+// `SELECT json_agg(j.*) AS jobs FROM jobs AS j LEFT JOIN technologies AS t ON j.id=t.job_id LEFT JOIN users AS u ON u.username=t.username WHERE t.username=$1 AND t.technology= ANY($2) GROUP BY j.id`;
+
 module.exports = {
 	sqlForGetCompany,
 	sqlForGetJob,
 	sqlForGetUser,
+	sqlForMatchJobs,
 };
