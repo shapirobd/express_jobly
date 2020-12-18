@@ -8,6 +8,16 @@ const { ensureLoggedIn, ensureAdmin } = require("../middleware/auth");
 
 const router = new express.Router();
 
+// This should take {state: string-of-application-state} and insert into the applications table. It should return JSON of {message: new-state}
+router.post("/:id/apply", async (req, res, next) => {
+	try {
+		await Job.apply(req.params.id, req.body.state);
+		return res.json({ message: req.body.state });
+	} catch (e) {
+		return next(e);
+	}
+});
+
 // creates a new job & adds to database
 // validates req.body based on JSON schema from createJobSchema.json
 // returns the details of the new job in JSON format - {job: {jobDetails}}

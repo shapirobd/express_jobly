@@ -15,13 +15,22 @@ class Job {
 		this.comp_handle = comp_handle;
 	}
 
+	static async apply(id, state) {
+		const results = await db.query(
+			`UPDATE applications SET state=$1 WHERE job_id=$2 RETURNING *`,
+			[state, id]
+		);
+		checkForNoResults("Application", results);
+		return results.rows[0];
+	}
+
 	// Creates a new job and puts it into the database
 	// uses sqlForCreate to generate the correct insert query based on data
 	// returns an object containing the job's details - {id: id, etc.}
 	static async create(data) {
 		const query = sqlForCreate("jobs", data);
-		const result = await db.query(query["queryString"], query["values"]);
-		return result.rows[0];
+		const results = await db.query(query["queryString"], query["values"]);
+		return results.rows[0];
 	}
 
 	// Gets all jobs from the databse
