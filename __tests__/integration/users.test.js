@@ -150,11 +150,6 @@ afterEach(async () => {
 });
 
 describe("Test GET /users route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should return all user", async () => {
 		const resp = await request(app).get("/users").send({ _token });
 		user1 = _.omit(user1, ["password", "photo_url", "is_admin"]);
@@ -167,11 +162,6 @@ describe("Test GET /users route", () => {
 });
 
 describe("Test POST /users route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should create a new user", async () => {
 		const resp = await request(app).post(`/users`).send(newUser);
 		expect(resp.status).toBe(200);
@@ -194,11 +184,6 @@ describe("Test POST /users route", () => {
 });
 
 describe("Test GET /users/:username route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should get info on users with given username", async () => {
 		const resp = await request(app)
 			.get(`/users/${user1.username}`)
@@ -218,11 +203,6 @@ describe("Test GET /users/:username route", () => {
 });
 
 describe("Test PATCH /users/:username route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should update a user", async () => {
 		const resp = await request(app)
 			.patch(`/users/${user1.username}`)
@@ -264,11 +244,6 @@ describe("Test PATCH /users/:username route", () => {
 });
 
 describe("Test DELETE /users/:username route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should delete a user", async () => {
 		const resp = await request(app)
 			.delete(`/users/${user2.username}`)

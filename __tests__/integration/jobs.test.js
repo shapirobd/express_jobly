@@ -138,11 +138,6 @@ afterEach(async () => {
 });
 
 describe("Test GET /jobs route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should return all jobs in order of date posted (no query params)", async () => {
 		const resp = await request(app).get("/jobs").send({ _token });
 		expect(resp.status).toBe(200);
@@ -239,11 +234,6 @@ describe("Test GET /jobs route", () => {
 });
 
 describe("Test POST /jobs route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should create a new job", async () => {
 		const resp = await request(app)
 			.post(`/jobs`)
@@ -272,11 +262,6 @@ describe("Test POST /jobs route", () => {
 });
 
 describe("Test GET /jobs/:id route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should get info on job with given id", async () => {
 		const job = await queryJob(job1);
 		const company = await queryCompany(job1);
@@ -292,11 +277,6 @@ describe("Test GET /jobs/:id route", () => {
 });
 
 describe("Test PATCH /jobs/:id route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should update a job", async () => {
 		const job = await queryJob(job1);
 		const company = await queryCompany(job1_update);
@@ -336,11 +316,6 @@ describe("Test PATCH /jobs/:id route", () => {
 });
 
 describe("Test DELETE /jobs/:id route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should delete a job", async () => {
 		const job = await queryJob(job2);
 		console.log(job);

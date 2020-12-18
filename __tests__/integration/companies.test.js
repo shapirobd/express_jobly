@@ -62,16 +62,6 @@ const invalidSchemaErrors = [
 	"instance.logo_url is not of a type(s) string",
 ];
 
-function formatDates(jobs) {
-	console.log(jobs);
-	for (let job of jobs) {
-		job["date_posted"] = job["date_posted"].slice(0, -9);
-		job.date_posted += "Z";
-		console.log(job.date_posted);
-	}
-	return jobs;
-}
-
 beforeAll(async () => {
 	await db.query(`DELETE FROM users`);
 	await db.query(`DELETE FROM jobs`);
@@ -132,11 +122,6 @@ afterEach(async () => {
 });
 
 describe("Test GET /companies route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should return all companies (no query params)", async () => {
 		const resp = await request(app).get("/companies").send({ _token });
 		expect(resp.status).toBe(200);
@@ -234,11 +219,6 @@ describe("Test GET /companies route", () => {
 });
 
 describe("Test POST /companies route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should create a new company", async () => {
 		const resp = await request(app)
 			.post(`/companies`)
@@ -272,11 +252,6 @@ describe("Test POST /companies route", () => {
 });
 
 describe("Test GET /companies/:handle route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should get info on company with given handle", async () => {
 		const resp = await request(app)
 			.get(`/companies/${company1.handle}`)
@@ -302,11 +277,6 @@ describe("Test GET /companies/:handle route", () => {
 });
 
 describe("Test PATCH /companies/:handle route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should update a company", async () => {
 		const resp = await request(app)
 			.patch(`/companies/${company1.handle}`)
@@ -352,11 +322,6 @@ describe("Test PATCH /companies/:handle route", () => {
 });
 
 describe("Test DELETE /companies/:handle route", () => {
-	afterEach(async () => {
-		await db.query(`DELETE FROM users`);
-		await db.query(`DELETE FROM jobs`);
-		await db.query(`DELETE FROM companies`);
-	});
 	it("should delete a company", async () => {
 		const resp = await request(app)
 			.delete(`/companies/${company2.handle}`)
