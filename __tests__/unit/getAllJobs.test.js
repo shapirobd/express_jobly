@@ -1,19 +1,5 @@
 const getAll = require("../../helpers/jobs/getAll");
 
-// const company = {
-// 	handle: "GOOG",
-// 	name: "Google",
-// 	num_employees: 100,
-// 	description: "Best search engine ever",
-// 	logo_url: "enter logo url here",
-// };
-// const job = {
-// 	title: "Developer",
-// 	salary: 45000.0,
-// 	equity: 0.1,
-// 	company_handle: "GOOG",
-// };
-
 const search = "Developer";
 const min_equity = "0.1";
 const min_salary = "50000.00";

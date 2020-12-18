@@ -19,7 +19,7 @@ function sqlForGetAllCompanies(filters) {
 		idx++;
 	}
 	let employeesQuery = generateEmployeeQuery(filters, idx, nameQuery);
-	let queryString = `SELECT handle, name FROM companies ${nameQuery} ${employeesQuery}`;
+	let queryString = `SELECT handle, name FROM companies${nameQuery}${employeesQuery}`;
 	removeUndefinedFilters(filters);
 	let values = Object.values(filters);
 	return { queryString, values };
@@ -47,7 +47,7 @@ function removeUndefinedFilters(filters) {
 // if filters.search not defined: makes the substring = ""
 function generateNameQuery(filters, idx) {
 	if (filters.search) {
-		return `WHERE name=$${idx} OR handle=$${idx}`;
+		return ` WHERE name=$${idx} OR handle=$${idx}`;
 	}
 	return "";
 }
@@ -80,24 +80,24 @@ function handleMinMax(filters, idx) {
 function generateEmployeeQuery(filters, idx, nameQuery) {
 	let employeesQuery = handleMinMax(filters, idx);
 	if (nameQuery === "" && employeesQuery !== "") {
-		employeesQuery = "WHERE" + employeesQuery.slice(3);
+		employeesQuery = " WHERE" + employeesQuery.slice(4);
 	}
 	return employeesQuery;
 }
 
 // generates substring to be added to the queryString to filter companies with num_employees > min_employees & num_employees < max_employees
 function generateMinMaxQuery(idx) {
-	return `AND num_employees > $${idx} AND num_employees < $${idx + 1}`;
+	return ` AND num_employees > $${idx} AND num_employees < $${idx + 1}`;
 }
 
 // generates substring to be added to the queryString to filter companies with num_employees > min_employees
 function generateMinQuery(idx) {
-	return `AND num_employees > $${idx}`;
+	return ` AND num_employees > $${idx}`;
 }
 
 // generates substring to be added to the queryString to filter companies with num_employees < max_employees
 function generateMaxQuery(idx) {
-	return `AND num_employees < $${idx}`;
+	return ` AND num_employees < $${idx}`;
 }
 
 module.exports = sqlForGetAllCompanies;

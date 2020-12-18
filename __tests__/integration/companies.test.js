@@ -74,6 +74,8 @@ function formatDates(jobs) {
 
 beforeAll(async () => {
 	await db.query(`DELETE FROM users`);
+	await db.query(`DELETE FROM jobs`);
+	await db.query(`DELETE FROM companies`);
 	const registeredUser = await request(app).post("/users").send({
 		username: "username1",
 		password: "password1",
@@ -93,8 +95,6 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-	await db.query(`DELETE FROM jobs`);
-	await db.query(`DELETE FROM companies`);
 	await db.query(
 		`INSERT INTO companies (handle, name, num_employees, description, logo_url) VALUES ($1, $2, $3, $4, $5)`,
 		[
@@ -125,7 +125,18 @@ beforeEach(async () => {
 	);
 });
 
+afterEach(async () => {
+	await db.query(`DELETE FROM users`);
+	await db.query(`DELETE FROM jobs`);
+	await db.query(`DELETE FROM companies`);
+});
+
 describe("Test GET /companies route", () => {
+	afterEach(async () => {
+		await db.query(`DELETE FROM users`);
+		await db.query(`DELETE FROM jobs`);
+		await db.query(`DELETE FROM companies`);
+	});
 	it("should return all companies (no query params)", async () => {
 		const resp = await request(app).get("/companies").send({ _token });
 		expect(resp.status).toBe(200);
@@ -223,6 +234,11 @@ describe("Test GET /companies route", () => {
 });
 
 describe("Test POST /companies route", () => {
+	afterEach(async () => {
+		await db.query(`DELETE FROM users`);
+		await db.query(`DELETE FROM jobs`);
+		await db.query(`DELETE FROM companies`);
+	});
 	it("should create a new company", async () => {
 		const resp = await request(app)
 			.post(`/companies`)
@@ -256,6 +272,11 @@ describe("Test POST /companies route", () => {
 });
 
 describe("Test GET /companies/:handle route", () => {
+	afterEach(async () => {
+		await db.query(`DELETE FROM users`);
+		await db.query(`DELETE FROM jobs`);
+		await db.query(`DELETE FROM companies`);
+	});
 	it("should get info on company with given handle", async () => {
 		const resp = await request(app)
 			.get(`/companies/${company1.handle}`)
@@ -281,6 +302,11 @@ describe("Test GET /companies/:handle route", () => {
 });
 
 describe("Test PATCH /companies/:handle route", () => {
+	afterEach(async () => {
+		await db.query(`DELETE FROM users`);
+		await db.query(`DELETE FROM jobs`);
+		await db.query(`DELETE FROM companies`);
+	});
 	it("should update a company", async () => {
 		const resp = await request(app)
 			.patch(`/companies/${company1.handle}`)
@@ -326,6 +352,11 @@ describe("Test PATCH /companies/:handle route", () => {
 });
 
 describe("Test DELETE /companies/:handle route", () => {
+	afterEach(async () => {
+		await db.query(`DELETE FROM users`);
+		await db.query(`DELETE FROM jobs`);
+		await db.query(`DELETE FROM companies`);
+	});
 	it("should delete a company", async () => {
 		const resp = await request(app)
 			.delete(`/companies/${company2.handle}`)
@@ -350,5 +381,9 @@ describe("Test DELETE /companies/:handle route", () => {
 });
 
 afterAll(async () => {
+	await db.query(`DELETE FROM applications`);
+	await db.query(`DELETE FROM users`);
+	await db.query(`DELETE FROM jobs`);
+	await db.query(`DELETE FROM companies`);
 	await db.end();
 });

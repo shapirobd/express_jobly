@@ -55,6 +55,13 @@ const app2 = {
 	state: "Accepted!",
 };
 
+beforeAll(async () => {
+	await db.query(`DELETE FROM applications`);
+	await db.query(`DELETE FROM users`);
+	await db.query(`DELETE FROM jobs`);
+	await db.query(`DELETE FROM companies`);
+});
+
 beforeEach(async () => {
 	user1 = {
 		username: "username1",
@@ -91,10 +98,6 @@ beforeEach(async () => {
 		photo_url: "different photo url",
 		is_admin: false,
 	};
-	await db.query(`DELETE FROM applications`);
-	await db.query(`DELETE FROM users`);
-	await db.query(`DELETE FROM jobs`);
-	await db.query(`DELETE FROM companies`);
 	const registeredUser = await request(app).post("/users").send(user1);
 	const registerToken = registeredUser.body;
 	const loggedInUser = await request(app).post("/login").send({
@@ -140,8 +143,19 @@ beforeEach(async () => {
 	);
 });
 
+afterEach(async () => {
+	await db.query(`DELETE FROM users`);
+	await db.query(`DELETE FROM jobs`);
+	await db.query(`DELETE FROM companies`);
+});
+
 describe("Test GET /users route", () => {
-	it("should return all users in order of date posted (no query params)", async () => {
+	afterEach(async () => {
+		await db.query(`DELETE FROM users`);
+		await db.query(`DELETE FROM jobs`);
+		await db.query(`DELETE FROM companies`);
+	});
+	it("should return all user", async () => {
 		const resp = await request(app).get("/users").send({ _token });
 		user1 = _.omit(user1, ["password", "photo_url", "is_admin"]);
 		user2 = _.omit(user2, ["password", "photo_url", "is_admin"]);
@@ -153,6 +167,11 @@ describe("Test GET /users route", () => {
 });
 
 describe("Test POST /users route", () => {
+	afterEach(async () => {
+		await db.query(`DELETE FROM users`);
+		await db.query(`DELETE FROM jobs`);
+		await db.query(`DELETE FROM companies`);
+	});
 	it("should create a new user", async () => {
 		const resp = await request(app).post(`/users`).send(newUser);
 		expect(resp.status).toBe(200);
@@ -175,6 +194,11 @@ describe("Test POST /users route", () => {
 });
 
 describe("Test GET /users/:username route", () => {
+	afterEach(async () => {
+		await db.query(`DELETE FROM users`);
+		await db.query(`DELETE FROM jobs`);
+		await db.query(`DELETE FROM companies`);
+	});
 	it("should get info on users with given username", async () => {
 		const resp = await request(app)
 			.get(`/users/${user1.username}`)
@@ -194,6 +218,11 @@ describe("Test GET /users/:username route", () => {
 });
 
 describe("Test PATCH /users/:username route", () => {
+	afterEach(async () => {
+		await db.query(`DELETE FROM users`);
+		await db.query(`DELETE FROM jobs`);
+		await db.query(`DELETE FROM companies`);
+	});
 	it("should update a user", async () => {
 		const resp = await request(app)
 			.patch(`/users/${user1.username}`)
@@ -235,6 +264,11 @@ describe("Test PATCH /users/:username route", () => {
 });
 
 describe("Test DELETE /users/:username route", () => {
+	afterEach(async () => {
+		await db.query(`DELETE FROM users`);
+		await db.query(`DELETE FROM jobs`);
+		await db.query(`DELETE FROM companies`);
+	});
 	it("should delete a user", async () => {
 		const resp = await request(app)
 			.delete(`/users/${user2.username}`)
@@ -256,5 +290,9 @@ describe("Test DELETE /users/:username route", () => {
 });
 
 afterAll(async () => {
+	await db.query(`DELETE FROM applications`);
+	await db.query(`DELETE FROM users`);
+	await db.query(`DELETE FROM jobs`);
+	await db.query(`DELETE FROM companies`);
 	await db.end();
 });
