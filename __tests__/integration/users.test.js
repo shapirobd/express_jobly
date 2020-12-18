@@ -30,6 +30,31 @@ const invalidSchemaErrors = [
 
 let _token;
 
+const company1 = {
+	handle: "GOOG",
+	name: "Google",
+	num_employees: 100,
+	description: "Best search engine ever",
+	logo_url: "enter logo url here",
+};
+
+const job1 = {
+	title: "I.T. Support",
+	salary: 45000.0,
+	equity: 0.1,
+	company_handle: "GOOG",
+};
+
+const app1 = {
+	username: "username1",
+	state: "Pending...",
+};
+
+const app2 = {
+	username: "username2",
+	state: "Accepted!",
+};
+
 beforeEach(async () => {
 	user1 = {
 		username: "username1",
@@ -58,7 +83,7 @@ beforeEach(async () => {
 		is_admin: false,
 	};
 	user1_update = {
-		username: "username345",
+		username: "username1",
 		password: "password345",
 		first_name: "Bob",
 		last_name: "Smith",
@@ -66,7 +91,10 @@ beforeEach(async () => {
 		photo_url: "different photo url",
 		is_admin: false,
 	};
+	await db.query(`DELETE FROM applications`);
 	await db.query(`DELETE FROM users`);
+	await db.query(`DELETE FROM jobs`);
+	await db.query(`DELETE FROM companies`);
 	const registeredUser = await request(app).post("/users").send(user1);
 	const registerToken = registeredUser.body;
 	const loggedInUser = await request(app).post("/login").send({
@@ -85,6 +113,30 @@ beforeEach(async () => {
 			user2.email,
 			user2.is_admin,
 		]
+	);
+	await db.query(
+		`INSERT INTO companies (handle, name, num_employees, description, logo_url) VALUES ($1, $2, $3, $4, $5)`,
+		[
+			company1.handle,
+			company1.name,
+			company1.num_employees,
+			company1.description,
+			company1.logo_url,
+		]
+	);
+	let jobResp = await db.query(
+		`INSERT INTO jobs (title, salary, equity, company_handle) VALUES ($1, $2, $3, $4) RETURNING *`,
+		[job1.title, job1.salary, job1.equity, job1.company_handle]
+	);
+	app1.job_id = jobResp.rows[0].id;
+	app2.job_id = jobResp.rows[0].id;
+	await db.query(
+		`INSERT INTO applications (username, job_id, state) VALUES ($1, $2, $3)`,
+		[app1.username, app1.job_id, app1.state]
+	);
+	await db.query(
+		`INSERT INTO applications (username, job_id, state) VALUES ($1, $2, $3)`,
+		[app2.username, app2.job_id, app2.state]
 	);
 });
 
@@ -105,11 +157,10 @@ describe("Test POST /users route", () => {
 		const resp = await request(app).post(`/users`).send(newUser);
 		expect(resp.status).toBe(200);
 		expect(resp.body).toEqual({ token: expect.any(String) });
-		const getResp = await request(app)
-			.get(`/users/${newUser.username}`)
-			.send({ _token });
-		delete newUser.password;
-		expect(getResp.body).toEqual({ user: newUser });
+		const emery = await db.query(
+			`SELECT u.*, json_agg(a.*) AS applications FROM applications AS a LEFT JOIN users AS u ON a.username = u.username WHERE a.username=$1 GROUP BY u.username`,
+			["emeryjohnson"]
+		);
 	});
 	it("should return an error if schema not matched", async () => {
 		const resp = await request(app)
@@ -134,7 +185,8 @@ describe("Test GET /users/:username route", () => {
 			.send({ _token });
 		delete user1.password;
 		expect(resp.status).toBe(200);
-		expect(resp.body).toEqual({ user: user1 });
+		app1.created_at = resp.body.user.applications[0].created_at;
+		expect(resp.body).toEqual({ user: { ...user1, applications: [app1] } });
 	});
 	it("should return an error if users with given username can't be found", async () => {
 		const resp = await request(app)
@@ -156,7 +208,10 @@ describe("Test PATCH /users/:username route", () => {
 		const getResp = await request(app)
 			.get(`/users/${user1_update.username}`)
 			.send({ _token });
-		expect(getResp.body).toEqual({ user: user1_update });
+		app1.created_at = getResp.body.user.applications[0].created_at;
+		expect(getResp.body).toEqual({
+			user: { ...user1_update, applications: [app1] },
+		});
 	});
 	it("should return an error if user with given username can't be found", async () => {
 		const resp = await request(app)
@@ -176,7 +231,8 @@ describe("Test PATCH /users/:username route", () => {
 		});
 		const getResp = await request(app).get(`/users/${user1.username}`);
 		delete user1.password;
-		expect(getResp.body).toEqual({ user: user1 });
+		app1.created_at = getResp.body.user.applications[0].created_at;
+		expect(getResp.body).toEqual({ user: { ...user1, applications: [app1] } });
 	});
 });
 

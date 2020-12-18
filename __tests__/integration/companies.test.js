@@ -61,8 +61,11 @@ const invalidSchemaErrors = [
 ];
 
 function formatDates(jobs) {
+	console.log(jobs);
 	for (let job of jobs) {
-		job["date_posted"] = job["date_posted"].toISOString();
+		job["date_posted"] = job["date_posted"].slice(0, -9);
+		job.date_posted += "Z";
+		console.log(job.date_posted);
 	}
 	return jobs;
 }
@@ -257,16 +260,11 @@ describe("Test GET /companies/:handle route", () => {
 		const resp = await request(app)
 			.get(`/companies/${company1.handle}`)
 			.send({ _token });
+		job1.date_posted = resp.body.company.jobs[0].date_posted;
+		job1.id = resp.body.company.jobs[0].id;
 		expect(resp.status).toBe(200);
-		const getResp = await request(app)
-			.get(`/companies/${company1.handle}`)
-			.send({ _token });
-		const queriedJobs = await db.query(
-			`SELECT * FROM jobs WHERE company_handle='${company1.handle}'`
-		);
-		const jobs = formatDates(queriedJobs.rows);
-		expect(getResp.body).toEqual({
-			company: { ...company1, jobs },
+		expect(resp.body).toEqual({
+			company: { ...company1, jobs: [job1] },
 		});
 	});
 	it("should return an error if company with given handle can't be found", async () => {
@@ -292,12 +290,11 @@ describe("Test PATCH /companies/:handle route", () => {
 		const getResp = await request(app)
 			.get(`/companies/${company1.handle}`)
 			.send({ _token });
-		const queriedJobs = await db.query(
-			`SELECT * FROM jobs WHERE company_handle='${company1.handle}'`
-		);
-		const jobs = formatDates(queriedJobs.rows);
+		job1.date_posted = getResp.body.company.jobs[0].date_posted;
+		job1.id = getResp.body.company.jobs[0].id;
+		expect(getResp.status).toBe(200);
 		expect(getResp.body).toEqual({
-			company: { ...company1_update, jobs },
+			company: { ...company1_update, jobs: [job1] },
 		});
 	});
 	it("should return an error if company with given handle can't be found", async () => {
@@ -319,12 +316,11 @@ describe("Test PATCH /companies/:handle route", () => {
 		const getResp = await request(app)
 			.get(`/companies/${company1.handle}`)
 			.send({ _token });
-		const queriedJobs = await db.query(
-			`SELECT * FROM jobs WHERE company_handle='${company1.handle}'`
-		);
-		const jobs = formatDates(queriedJobs.rows);
+		job1.date_posted = getResp.body.company.jobs[0].date_posted;
+		job1.id = getResp.body.company.jobs[0].id;
+		expect(getResp.status).toBe(200);
 		expect(getResp.body).toEqual({
-			company: { ...company1, jobs },
+			company: { ...company1, jobs: [job1] },
 		});
 	});
 });

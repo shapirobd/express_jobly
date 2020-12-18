@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS companies CASCADE;
+DROP TABLE IF EXISTS applications CASCADE;
 DROP TABLE IF EXISTS jobs CASCADE;
 DROP TABLE IF EXISTS users;
 
@@ -37,3 +38,15 @@ CREATE TABLE users (
 
 INSERT INTO users (username, password, first_name, last_name, email, photo_url, is_admin) VALUES ('shapirobd', 'Pot3ntiat321!', 'Brian', 'Shapiro', 'briandavidshapiro@gmail.com', 'this is a photo url', true);
 INSERT INTO users (username, password, first_name, last_name, email, is_admin) VALUES ('nickgriffo', 'ireek123', 'Nick', 'Griffo', 'nickcg@gmail.com', false);
+
+CREATE TABLE applications (
+    username TEXT REFERENCES users(username) ON DELETE CASCADE,
+    job_id INT REFERENCES jobs(id) ON DELETE CASCADE,
+    state TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(username, job_id)
+);
+
+INSERT INTO applications (username, job_id, state) VALUES ('shapirobd', 1, 'NC');
+INSERT INTO applications (username, job_id, state) VALUES ('shapirobd', 2, 'Pending..');
+INSERT INTO applications (username, job_id, state) VALUES ('nickgriffo', 2, 'NY');

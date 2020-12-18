@@ -60,7 +60,6 @@ async function queryJob(job) {
 	const queriedJob = await db.query(
 		`SELECT * FROM jobs WHERE title='${job.title}'`
 	);
-	delete queriedJob.rows[0].company_handle;
 	return formatDate(queriedJob.rows[0]);
 }
 
@@ -284,7 +283,6 @@ describe("Test PATCH /jobs/:id route", () => {
 		expect(resp.status).toBe(200);
 		expect(resp.body).toEqual({ job: job1_update });
 		const getResp = await request(app).get(`/jobs/${job.id}`).send({ _token });
-		delete job1_update.company_handle;
 		expect(getResp.body).toEqual({ job: { ...job1_update, company } });
 	});
 	it("should return an error if job with given id can't be found", async () => {
@@ -306,6 +304,8 @@ describe("Test PATCH /jobs/:id route", () => {
 			message: invalidSchemaErrors,
 		});
 		const getResp = await request(app).get(`/jobs/${job.id}`).send({ _token });
+		console.log(getResp.body);
+		console.log({ job: { ...job, company } });
 		expect(getResp.body).toEqual({ job: { ...job, company } });
 	});
 });

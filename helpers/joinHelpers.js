@@ -1,34 +1,28 @@
-const db = require("../db");
-const sqlForGetOne = require("./getOne");
-
 // generates a SQL query to find an item from a given table in the database.
 // handle: the value used to identify a specific company
-function sqlForGetCompanyJobs(handle) {
-	const queryString = `SELECT j.id, j.title, j.salary, j.equity, j.company_handle, j.date_posted FROM jobs AS j LEFT JOIN companies AS c ON j.company_handle=c.handle WHERE j.company_handle=$1`;
+function sqlForGetCompany(handle) {
+	const queryString = `SELECT c.*, json_agg(j.*) AS jobs FROM companies AS c LEFT JOIN jobs AS j ON j.company_handle=c.handle WHERE c.handle=$1 GROUP BY c.handle`;
 	const values = [handle];
 	return { queryString, values };
 }
 
-// uses query created by sqlForGetCompanyJobs to get filtered jobs from the database based on the handle associated with a company
-// handle: the value used to identify a specific company
-async function getCompanyJobs(handle) {
-	const jobsQuery = sqlForGetCompanyJobs(handle);
-	const jobsResults = await db.query(
-		jobsQuery["queryString"],
-		jobsQuery["values"]
-	);
-	return jobsResults.rows;
+function sqlForGetJob(id) {
+	const queryString = `SELECT j.*, to_json(c.*) AS company FROM jobs AS j JOIN companies AS c ON j.company_handle=c.handle WHERE j.id=$1 GROUP BY j.id, c.handle`;
+	const values = [id];
+	return { queryString, values };
 }
 
-// uses query created by sqlForGetOne to get a specific company from the database based on the company_handle associated with a job
-// handle: the value used to identify a specific company
-async function getJobCompany(handle) {
-	const companyQuery = sqlForGetOne("companies", "handle", handle);
-	const companyResults = await db.query(
-		companyQuery["queryString"],
-		companyQuery["values"]
-	);
-	return companyResults.rows[0];
+//u.username, u.first_name, u.last_name, u.email, u.photo_url, u.is_admin, a.job_id, a.state, a.created_at
+function sqlForGetUser(username) {
+	console.log(username);
+	const queryString = `SELECT u.*, json_agg(a.*) AS applications FROM applications AS a LEFT JOIN users AS u ON a.username = u.username WHERE a.username=$1 GROUP BY u.username`;
+	const values = [username];
+	console.log(values);
+	return { queryString, values };
 }
 
-module.exports = { getCompanyJobs, getJobCompany };
+module.exports = {
+	sqlForGetCompany,
+	sqlForGetJob,
+	sqlForGetUser,
+};

@@ -1,9 +1,8 @@
 const db = require("../db");
 const sqlForPartialUpdate = require("../helpers/partialUpdate");
 const sqlForGetAllCompanies = require("../helpers/companies/getAll");
-const { getCompanyJobs } = require("../helpers/joinHelpers");
+const { sqlForGetCompany } = require("../helpers/joinHelpers");
 const sqlForCreate = require("../helpers/create");
-const sqlForGetOne = require("../helpers/getOne");
 const checkForNoResults = require("../helpers/errorHelpers");
 
 // Company model with methods to query company details from db
@@ -39,15 +38,13 @@ class Company {
 	// uses sqlForGetOne to generate the correct select query based on the table name, key of "handle" and handle itself
 	// returns an object containing the company's details and associated jobs - {...companyData, jobs: [{job1}, {job2}, etc.]}
 	static async getByHandle(handle) {
-		const companyQuery = sqlForGetOne("companies", "handle", handle);
-		const companyResults = await db.query(
-			companyQuery["queryString"],
-			companyQuery["values"]
-		);
-		checkForNoResults("Company", companyResults);
-		const company = companyResults.rows[0];
-		company.jobs = await getCompanyJobs(handle);
-		return company;
+		const query = sqlForGetCompany(handle);
+		const results = await db.query(query["queryString"], query["values"]);
+		checkForNoResults("Company", results);
+		if (results.rows[0].jobs.length === 1 && results.rows[0].jobs[0] === null) {
+			results.rows[0].jobs = [];
+		}
+		return results.rows[0];
 	}
 
 	// Updates a company from the database by its handle
